@@ -4,6 +4,10 @@
   <b>中文</b> · <a href="README.en.md">English</a>
 </div>
 
+<p align="center">
+  <img src="assets/brand/wordmark.png" alt="html-to-video" width="720">
+</p>
+
 > **用 HTML 做视频，双击即可播放，逐帧导出 MP4。**
 > 面向 AI Agent 的视频制作技能，将需求引导、时间轴动画、音画对齐和导出验收放进一套流程。
 
@@ -40,7 +44,9 @@
 ```text
 html-to-video/
 ├── SKILL.md                 # 技能入口与制作规范
-├── assets/template/         # 可直接播放的项目模板
+├── assets/
+│   ├── brand/               # 黑白字标与彩色方形图标
+│   └── template/            # 可直接播放的项目模板
 ├── tools/                   # 初始化、检查、导出与验收工具
 ├── references/              # 渲染接口、音频与故障处理
 ├── examples/
@@ -134,6 +140,14 @@ node --test tests/pipeline.test.mjs
 - [时间驱动的渲染接口](references/rendering-contract.md)
 - [音轨、配音与字幕](references/audio.md)
 - [环境与故障定位](references/troubleshooting.md)
+
+### 品牌素材
+
+<img src="assets/brand/icon-purple-blue.png" alt="html-to-video 紫蓝渐变图标" width="96" height="96">
+
+[黑白字标](assets/brand/wordmark.png) · [透明底字标](assets/brand/wordmark-transparent.png)
+
+1:1 透明底图标：[紫蓝渐变](assets/brand/icon-purple-blue.png) · [橙红](assets/brand/icon-orange-coral.png) · [青绿](assets/brand/icon-teal-mint.png) · [宝蓝](assets/brand/icon-electric-blue.png) · [玫红紫](assets/brand/icon-magenta-violet.png) · [琥珀金](assets/brand/icon-amber-gold.png) · [石墨灰与荧光绿](assets/brand/icon-graphite-lime.png)。
 
 ## 11. License
 

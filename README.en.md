@@ -4,6 +4,10 @@
   <a href="README.md">中文</a> · <b>English</b>
 </div>
 
+<p align="center">
+  <img src="assets/brand/wordmark.png" alt="html-to-video" width="720">
+</p>
+
 > **Make videos with HTML: open them in a browser and export MP4 frame by frame.**
 > An AI agent skill that combines creative briefing, timeline animation, audiovisual timing, and export verification.
 
@@ -40,7 +44,9 @@ Brief and assets → Storyboard and timeline → HTML project
 ```text
 html-to-video/
 ├── SKILL.md                 # Skill entry point and production instructions
-├── assets/template/         # Directly playable project template
+├── assets/
+│   ├── brand/               # Monochrome wordmarks and color square icons
+│   └── template/            # Directly playable project template
 ├── tools/                   # Initialize, check, export, and verify
 ├── references/              # Rendering, audio, and troubleshooting
 ├── examples/
@@ -134,6 +140,14 @@ The runtime handles playback and seeking, project scripts draw the frames, and c
 - [Time-driven rendering interface](references/rendering-contract.md)
 - [Audio, voiceover, and captions](references/audio.md)
 - [Environment and troubleshooting](references/troubleshooting.md)
+
+### Brand assets
+
+<img src="assets/brand/icon-purple-blue.png" alt="html-to-video purple-blue icon" width="96" height="96">
+
+[Monochrome wordmark](assets/brand/wordmark.png) · [Transparent wordmark](assets/brand/wordmark-transparent.png)
+
+Square icons with transparent backgrounds: [Purple-blue](assets/brand/icon-purple-blue.png) · [Orange-coral](assets/brand/icon-orange-coral.png) · [Teal-mint](assets/brand/icon-teal-mint.png) · [Electric blue](assets/brand/icon-electric-blue.png) · [Magenta-violet](assets/brand/icon-magenta-violet.png) · [Amber-gold](assets/brand/icon-amber-gold.png) · [Graphite-lime](assets/brand/icon-graphite-lime.png).
 
 ## 11. License
 
