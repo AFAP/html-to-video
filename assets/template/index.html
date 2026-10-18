@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>HTML 视频项目</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="player.css">
+</head>
+<body>
+  <main id="player">
+    <header class="toolbar"><strong id="project-title">HTML 视频</strong><nav><a href="?format=landscape">横屏</a><a href="?format=portrait">竖屏</a></nav></header>
+    <div id="viewport"><div id="stage" aria-label="视频画面"></div></div>
+    <section id="controls" aria-label="播放控制">
+      <button id="play" type="button">播放</button><button id="restart" type="button">重播</button>
+      <input id="progress" type="range" min="0" max="1" step="0.001" value="0" aria-label="播放进度">
+      <output id="time">00:00 / 00:00</output><button id="mute" type="button">静音</button><button id="fullscreen" type="button">全屏</button>
+    </section>
+    <div id="chapters" aria-label="章节"></div>
+    <p id="status" role="status">正在准备画面…</p>
+    <p class="hint">空格 播放/暂停 · ← → 跳转一秒 · HTML 可直接打开 · MP4 使用技能中的导出命令</p>
+  </main>
+  <script src="project.js"></script>
+  <script src="runtime.js"></script>
+</body>
+</html>

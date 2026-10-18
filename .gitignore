@@ -1,0 +1,34 @@
+node_modules/
+output/
+.test-output/
+.cache/
+**/.work-*/
+*.tmp
+
+# Publish only the abyss example; keep other examples on this machine.
+/examples/*
+!/examples/deepseek-flash-4.1-1017-abyss/
+
+# Credentials and environment
+.env
+.env.*
+*.pem
+*.key
+.credentials.yaml
+
+# Generated files and caches
+dist/
+build/
+*.exe
+*.spec.bak
+*.log
+.venv/
+__pycache__/
+*.pyc
+.pnpm-store/
+
+# Editor and operating system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
