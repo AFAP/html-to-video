@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { sizes, hash } from './cli.mjs';
+import { sizes, hash } from './lib-cli.mjs';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 export function htmlFile(input) {
   if (!input) throw Error('请提供项目目录或 HTML 文件');

@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { args, allowArgs, format, number, main, writeJson, inside, hash } from './lib/cli.mjs';
-import { doctor, run } from './lib/machine.mjs';
-import { launch } from './lib/chrome.mjs';
-import { htmlFile, openProject, frame, sampleFrames, deterministic } from './lib/project.mjs';
-import { verify } from './lib/verify.mjs';
+import { args, allowArgs, format, number, main, writeJson, inside, hash } from './lib-cli.mjs';
+import { doctor, run } from './lib-machine.mjs';
+import { launch } from './lib-chrome.mjs';
+import { htmlFile, openProject, frame, sampleFrames, deterministic } from './lib-project.mjs';
+import { verify } from './lib-verify.mjs';
 await main(async () => {
   const o = args(undefined, ['smoke', 'silent']);
   allowArgs(o, ['format', 'out', 'crf', 'preset', 'smoke', 'silent']);

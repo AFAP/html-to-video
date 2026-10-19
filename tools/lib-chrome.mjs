@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { browserPath } from './machine.mjs';
+import { browserPath } from './lib-machine.mjs';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 export async function launch() {
   const exe = browserPath();

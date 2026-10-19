@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { readJson, writeJson, hash, inside } from './cli.mjs';
-import { binaries, run } from './machine.mjs';
+import { readJson, writeJson, hash, inside } from './lib-cli.mjs';
+import { binaries, run } from './lib-machine.mjs';
 export function verify(out, maxMae = 8) {
   const manifest = readJson(path.join(out, 'render.json'));
   const checks = [], { ffmpeg, ffprobe } = binaries();

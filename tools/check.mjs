@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { args, allowArgs, format, main, writeJson } from './lib/cli.mjs';
-import { launch } from './lib/chrome.mjs';
-import { htmlFile, openProject, frame, sampleFrames, deterministic, playbackCheck } from './lib/project.mjs';
+import { args, allowArgs, format, main, writeJson } from './lib-cli.mjs';
+import { launch } from './lib-chrome.mjs';
+import { htmlFile, openProject, frame, sampleFrames, deterministic, playbackCheck } from './lib-project.mjs';
 await main(async () => {
   const o = args(); allowArgs(o, ['format', 'out']);
   if (o._.length !== 1) throw Error('用法：node tools/check.mjs <项目或HTML> [--format portrait] [--out 目录]');

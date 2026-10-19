@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/brand/wordmark.png" alt="html-to-video" width="720">
+  <img src="brand/wordmark.png" alt="html-to-video" width="720">
 </p>
 
 > **Make videos with HTML: open them in a browser and export MP4 frame by frame.**
@@ -44,9 +44,8 @@ Brief and assets → Storyboard and timeline → HTML project
 ```text
 html-to-video/
 ├── SKILL.md                 # Skill entry point and production instructions
-├── assets/
-│   ├── brand/               # Monochrome wordmarks and color square icons
-│   └── template/            # Directly playable project template
+├── brand/                   # Monochrome wordmarks and color square icons
+├── template/                # Directly playable project template
 ├── tools/                   # Initialize, check, export, and verify
 ├── references/              # Rendering, audio, and troubleshooting
 ├── examples/
@@ -132,7 +131,7 @@ The model introduction is an independent example. The DeepSeek name and whale ma
 node --test tests/pipeline.test.mjs
 ```
 
-The runtime handles playback and seeking, project scripts draw the frames, and command-line tools capture, encode, and verify the result. After changing tools or templates, run the tests, `check`, and a two-second smoke export for the selected format. This JavaScript project runs directly from source without a compilation step.
+The runtime handles playback and seeking, project scripts draw the frames, and command-line tools capture, encode, and verify the result. Shared modules use `tools/lib-*.mjs` names alongside the command scripts. After changing tools or templates, run the tests, `check`, and a two-second smoke export for the selected format. This JavaScript project runs directly from source without a compilation step.
 
 ## 10. Documentation
 
@@ -143,11 +142,11 @@ The runtime handles playback and seeking, project scripts draw the frames, and c
 
 ### Brand assets
 
-<img src="assets/brand/icon-purple-blue.png" alt="html-to-video purple-blue icon" width="96" height="96">
+<img src="brand/icon-purple-blue.png" alt="html-to-video purple-blue icon" width="96" height="96">
 
-[Monochrome wordmark](assets/brand/wordmark.png) · [Transparent wordmark](assets/brand/wordmark-transparent.png)
+[Monochrome wordmark](brand/wordmark.png) · [Transparent wordmark](brand/wordmark-transparent.png)
 
-Square icons with transparent backgrounds: [Purple-blue](assets/brand/icon-purple-blue.png) · [Orange-coral](assets/brand/icon-orange-coral.png) · [Teal-mint](assets/brand/icon-teal-mint.png) · [Electric blue](assets/brand/icon-electric-blue.png) · [Magenta-violet](assets/brand/icon-magenta-violet.png) · [Amber-gold](assets/brand/icon-amber-gold.png) · [Graphite-lime](assets/brand/icon-graphite-lime.png).
+Square icons with transparent backgrounds: [Purple-blue](brand/icon-purple-blue.png) · [Orange-coral](brand/icon-orange-coral.png) · [Teal-mint](brand/icon-teal-mint.png) · [Electric blue](brand/icon-electric-blue.png) · [Magenta-violet](brand/icon-magenta-violet.png) · [Amber-gold](brand/icon-amber-gold.png) · [Graphite-lime](brand/icon-graphite-lime.png).
 
 ## 11. License
 

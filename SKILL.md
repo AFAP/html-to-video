@@ -6,7 +6,7 @@ display_name: HTML 视频制作器
 display_name_en: HTML Video Creator
 category: media
 author: 阿富
-description_zh: "将内容或已有动画制作成可双击播放、按时间定位的 HTML 视频项目，并逐帧导出 H.264 MP4。支持全高清横竖屏、配乐与字幕、两秒试导出和成片验收。"
+description_zh: "把内容、脚本或已有 HTML 动画制作成可直接打开播放的 HTML 视频项目，并逐帧导出 MP4。当用户要求用 HTML、CSS、SVG、Canvas 或代码制作介绍视频、科普动画、动态演示、宣传短片，或把网页动画导出为视频时使用。默认支持 1920×1080 横屏和 1080×1920 竖屏，共用时间驱动画面、预览与导出管线。"
 description_en: "Create directly playable, seekable HTML video projects and export frame-by-frame H.264 MP4. Supports full-HD landscape and portrait, audio, captions, smoke exports, and verification reports."
 ---
 
@@ -130,9 +130,10 @@ description_en: "Create directly playable, seekable HTML video projects and expo
 
 ## 关键文件
 
-- `assets/template/`：可直接复制运行的 HTML、播放器和最小时间驱动示例。
+- `template/`：可直接复制运行的 HTML、播放器和最小时间驱动示例。
 - `tools/init.mjs`：创建独立项目，拒绝覆盖已有目录。
 - `tools/doctor.mjs`：检查依赖及编码器，实际启动临时浏览器截图。
 - `tools/check.mjs`：离线资源、播放操作、乱序渲染与关键帧总览。
 - `tools/export.mjs`：逐帧渲染、可选音轨、合成与自动验收。
 - `tools/verify.mjs`：独立复核导出目录，不重写影片。
+- `tools/lib-*.mjs`：参数、环境、浏览器、项目加载与验收的共享逻辑。

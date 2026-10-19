@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { args, allowArgs, format, number, main } from './lib/cli.mjs';
+import { args, allowArgs, format, number, main } from './lib-cli.mjs';
 await main(() => {
   const o = args(); allowArgs(o, ['format', 'fps', 'duration', 'title']);
   if (o._.length !== 1) throw Error('用法：node tools/init.mjs <新目录> [--format landscape|portrait] [--fps 30] [--duration 8]');
@@ -10,7 +10,7 @@ await main(() => {
   const mode = format(o.format), fps = number(o.fps, 30, 24, 60, 'fps');
   if (![24, 25, 30, 50, 60].includes(fps)) throw Error('fps 使用 24/25/30/50/60');
   const duration = number(o.duration, 8, 5, 3600, 'duration');
-  const template = fileURLToPath(new URL('../assets/template/', import.meta.url));
+  const template = fileURLToPath(new URL('../template/', import.meta.url));
   // 按文件复制，避免部分 Windows Node 发行版 cpSync 对中文目标路径的异常。
   fs.mkdirSync(target, { recursive: true });
   for (const name of fs.readdirSync(template)) fs.copyFileSync(path.join(template, name), path.join(target, name));

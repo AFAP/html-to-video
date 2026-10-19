@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-const skillRoot = fileURLToPath(new URL('../../', import.meta.url));
+const skillRoot = fileURLToPath(new URL('../', import.meta.url));
 function find(env, names, candidates = []) {
   if (process.env[env]) {
     if (!fs.existsSync(process.env[env])) throw Error(`${env} 指向不存在的文件：${process.env[env]}`);

@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { args, allowArgs, number, main } from './lib/cli.mjs';
-import { verify } from './lib/verify.mjs';
+import { args, allowArgs, number, main } from './lib-cli.mjs';
+import { verify } from './lib-verify.mjs';
 await main(() => {
   const o = args(); allowArgs(o, ['mae']);
   if (o._.length !== 1) throw Error('用法：node tools/verify.mjs <导出目录> [--mae 8]');

@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-  <img src="assets/brand/wordmark.png" alt="html-to-video" width="720">
+  <img src="brand/wordmark.png" alt="html-to-video" width="720">
 </p>
 
 > **用 HTML 做视频，双击即可播放，逐帧导出 MP4。**
@@ -44,9 +44,8 @@
 ```text
 html-to-video/
 ├── SKILL.md                 # 技能入口与制作规范
-├── assets/
-│   ├── brand/               # 黑白字标与彩色方形图标
-│   └── template/            # 可直接播放的项目模板
+├── brand/                   # 黑白字标与彩色方形图标
+├── template/                # 可直接播放的项目模板
 ├── tools/                   # 初始化、检查、导出与验收工具
 ├── references/              # 渲染接口、音频与故障处理
 ├── examples/
@@ -132,7 +131,7 @@ node tools/verify.mjs output/my-film
 node --test tests/pipeline.test.mjs
 ```
 
-运行时负责播放与时间定位，项目脚本负责画面，命令行工具负责截图、合成与验收。修改工具或模板后，执行自检，并在选定画幅上运行 `check` 与两秒试导出。纯 JavaScript 项目无需编译，直接从源码运行。
+运行时负责播放与时间定位，项目脚本负责画面，命令行工具负责截图、合成与验收。共享模块以 `tools/lib-*.mjs` 命名，与命令脚本放在同一目录。修改工具或模板后，执行自检，并在选定画幅上运行 `check` 与两秒试导出。纯 JavaScript 项目无需编译，直接从源码运行。
 
 ## 10. 相关文档
 
@@ -143,11 +142,11 @@ node --test tests/pipeline.test.mjs
 
 ### 品牌素材
 
-<img src="assets/brand/icon-purple-blue.png" alt="html-to-video 紫蓝渐变图标" width="96" height="96">
+<img src="brand/icon-purple-blue.png" alt="html-to-video 紫蓝渐变图标" width="96" height="96">
 
-[黑白字标](assets/brand/wordmark.png) · [透明底字标](assets/brand/wordmark-transparent.png)
+[黑白字标](brand/wordmark.png) · [透明底字标](brand/wordmark-transparent.png)
 
-1:1 透明底图标：[紫蓝渐变](assets/brand/icon-purple-blue.png) · [橙红](assets/brand/icon-orange-coral.png) · [青绿](assets/brand/icon-teal-mint.png) · [宝蓝](assets/brand/icon-electric-blue.png) · [玫红紫](assets/brand/icon-magenta-violet.png) · [琥珀金](assets/brand/icon-amber-gold.png) · [石墨灰与荧光绿](assets/brand/icon-graphite-lime.png)。
+1:1 透明底图标：[紫蓝渐变](brand/icon-purple-blue.png) · [橙红](brand/icon-orange-coral.png) · [青绿](brand/icon-teal-mint.png) · [宝蓝](brand/icon-electric-blue.png) · [玫红紫](brand/icon-magenta-violet.png) · [琥珀金](brand/icon-amber-gold.png) · [石墨灰与荧光绿](brand/icon-graphite-lime.png)。
 
 ## 11. License
 

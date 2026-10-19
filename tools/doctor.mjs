@@ -1,6 +1,6 @@
-import { main } from './lib/cli.mjs';
-import { doctor } from './lib/machine.mjs';
-import { launch } from './lib/chrome.mjs';
+import { main } from './lib-cli.mjs';
+import { doctor } from './lib-machine.mjs';
+import { launch } from './lib-chrome.mjs';
 await main(async () => {
   const result = doctor();
   for (const c of result.checks) console.log(`${c.ok ? '✓' : '✗'} ${c.name}: ${c.detail}`);
