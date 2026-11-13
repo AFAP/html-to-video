@@ -75,5 +75,5 @@
 - HTML 预览允许浏览器加速绘制；`?export=1` 使用 CPU 光栅以保证帧采样一致。两种模式共用同一绘制函数与时间轴。
 - 鲸鱼标志：`whale-path.js` 提供官方路径，`project.js` 以 Path2D 绘制并叠加全息扫描、粒子、声呐与高光。
 - 播放器：`runtime.js` 的挂钟推进；音频不阻塞画面启动。
-- 导出：技能根目录执行 `node tools/export.mjs examples/deepseek-flash-4.1-1017-abyss --format landscape --out output/<新目录>`。
-- 预览检查：`node tools/check.mjs examples/deepseek-flash-4.1-1017-abyss --format landscape --out output/<新目录>`。
+- 导出：技能根目录执行 `node scripts/export.mjs examples/deepseek-flash-4.1-1017-abyss --format landscape --out output/<新目录>`。
+- 预览检查：`node scripts/check.mjs examples/deepseek-flash-4.1-1017-abyss --format landscape --out output/<新目录>`。

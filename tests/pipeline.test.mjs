@@ -5,9 +5,9 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { format, args, inside } from '../tools/lib-cli.mjs';
-import { sampleFrames } from '../tools/lib-project.mjs';
-import { binaries } from '../tools/lib-machine.mjs';
+import { format, args, inside } from '../scripts/lib-cli.mjs';
+import { sampleFrames } from '../scripts/lib-project.mjs';
+import { binaries } from '../scripts/lib-machine.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 test('参数拒绝无效画幅、缺失值与目录逃逸', () => {
   assert.equal(format('1080x1920'), 'portrait');
@@ -26,7 +26,7 @@ test('初始化中文空格目录，已有内容不被覆盖', () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'h2v-test-'));
   try {
     const target = path.join(temp, '中文 空格项目');
-    const call = () => spawnSync(process.execPath, ['tools/init.mjs', target, '--format', 'portrait', '--title', "测试'标题"], { cwd: root, encoding: 'utf8', windowsHide: true });
+    const call = () => spawnSync(process.execPath, ['scripts/init.mjs', target, '--format', 'portrait', '--title', "测试'标题"], { cwd: root, encoding: 'utf8', windowsHide: true });
     const a = call(); assert.equal(a.status, 0, a.stderr);
     const file = path.join(target, 'project.js'), source = fs.readFileSync(file, 'utf8');
     assert.ok(!/__TITLE__|__FORMAT__|__FPS__|__DURATION__/.test(source));
@@ -58,10 +58,10 @@ test('从其他工作目录发现技能内的 FFmpeg 缓存', () => {
   assert.ok(inside(os.tmpdir(), temp));
   try {
     const skill = path.join(temp, 'skill'), work = path.join(temp, 'work');
-    const tools = path.join(skill, 'tools'), bin = path.join(skill, '.cache', 'ffmpeg', 'bin');
+    const tools = path.join(skill, 'scripts'), bin = path.join(skill, '.cache', 'ffmpeg', 'bin');
     fs.mkdirSync(tools, { recursive: true }); fs.mkdirSync(bin, { recursive: true }); fs.mkdirSync(work);
     const moduleFile = path.join(tools, 'lib-machine.mjs');
-    fs.copyFileSync(path.join(root, 'tools', 'lib-machine.mjs'), moduleFile);
+    fs.copyFileSync(path.join(root, 'scripts', 'lib-machine.mjs'), moduleFile);
     const suffix = process.platform === 'win32' ? '.exe' : '';
     for (const name of ['ffmpeg', 'ffprobe']) fs.writeFileSync(path.join(bin, name + suffix), 'fixture');
     const env = { ...process.env, PATH: '' };

@@ -1,18 +1,32 @@
 ---
 name: html-to-video
-description: 把内容、脚本或已有 HTML 动画制作成可直接打开播放的 HTML 视频项目，并逐帧导出 MP4。当用户要求用 HTML、CSS、SVG、Canvas 或代码制作介绍视频、科普动画、动态演示、宣传短片，或把网页动画导出为视频时使用。默认支持 1920×1080 横屏和 1080×1920 竖屏，共用时间驱动画面、预览与导出管线。
-version: "1.0.0"
+description: 用 HTML、CSS、SVG 或 Canvas 制作介绍视频、科普动画、动态演示和宣传短片，或将已有网页动画导出为 MP4。先交付可直接播放的 HTML 供用户查看效果，确认后再逐帧导出视频。
+version: "1.2.0"
 display_name: HTML 视频制作器
 display_name_en: HTML Video Creator
-category: media
 author: 阿富
-description_zh: "把内容、脚本或已有 HTML 动画制作成可直接打开播放的 HTML 视频项目，并逐帧导出 MP4。当用户要求用 HTML、CSS、SVG、Canvas 或代码制作介绍视频、科普动画、动态演示、宣传短片，或把网页动画导出为视频时使用。默认支持 1920×1080 横屏和 1080×1920 竖屏，共用时间驱动画面、预览与导出管线。"
-description_en: "Create directly playable, seekable HTML video projects and export frame-by-frame H.264 MP4. Supports full-HD landscape and portrait, audio, captions, smoke exports, and verification reports."
+description_zh: "用代码制作可直接播放、暂停和拖动的 HTML 视频，支持全高清横屏、竖屏、配乐与字幕。先看 HTML 效果，确认满意后再导出 MP4。"
+description_en: "Create playable, seekable HTML videos with full-HD landscape or portrait layouts, audio, and captions. Review the HTML first, then confirm before exporting MP4."
+examples_zh:
+  - "把这份产品介绍做成 30 秒横屏动画，先给我 HTML 看效果。"
+  - "做一条带配乐和字幕的竖屏科普短片，确认效果后再导出 MP4。"
+  - "这个 HTML 动画我已经看过，效果没问题，请导出 MP4。"
+examples_en:
+  - "Turn this product brief into a 30-second landscape animation and show me the HTML first."
+  - "Create a portrait explainer with music and captions; export MP4 after I approve the preview."
+  - "I have reviewed this HTML animation and it looks good. Export it to MP4."
 ---
 
 # HTML 视频创作与导出管线
 
-制作可双击播放的 HTML 项目，将播放、拖动和逐帧导出接入同一个绝对时间入口。先完成内容、分镜与画面，再检查 HTML、试导出、导出全片并验收。按项目需求选择构图、配色、字体、镜头与声音。
+制作可双击播放的 HTML 项目，将播放、拖动和逐帧导出接入同一个绝对时间入口。先完成并检查 HTML，让用户实际播放、查看效果；用户确认后再试导出、导出全片并验收。按项目需求选择构图、配色、字体、镜头与声音。
+
+## 先预览，确认后导出
+
+- 默认先交付可播放的 HTML 源项目。提供 `index.html` 的可点击路径或环境支持的浏览器预览入口，说明如何播放、暂停、拖动与试听，让用户检查画面、文字、节奏和声音；关键帧总览仅作补充。
+- HTML 检查完成后停在预览阶段，说明“HTML 已可播放，请先查看实际效果；确认满意后再导出 MP4，逐帧导出会耗时”，等待用户明确确认。首次提出“做一个视频”或“做成 MP4”只表示目标格式，不代替对实际效果的确认；未确认前不运行 `export.mjs`，包括两秒试导出，也不提前准备仅导出需要的 FFmpeg / ffprobe。
+- 用户提出修改时，先改 HTML、重新检查并提供更新的预览，确认当前版本后再导出。修改后不自动重导出。
+- 目标已包含 MP4 时，用户对当前预览明确回复“效果没问题”“可以导出”等，即可进入导出阶段，无须再问一次。用户已看过当前 HTML 并明确要求导出时也直接继续。只需要 HTML 的任务在预览交付后完成。
 
 ## 创作前的引导问题
 
@@ -41,11 +55,11 @@ description_en: "Create directly playable, seekable HTML video projects and expo
 
 ## 选择工作方式
 
-- **制作新视频**：按下面的标准工作流，用 `tools/init.mjs` 生成可独立播放的项目，再按内容创作。
-- **已有 HTML 动画要导出**：读 [references/rendering-contract.md](references/rendering-contract.md)，把动画改为可由绝对秒数定位，并接入统一播放器。不要直接录屏后当作逐帧导出。
+- **制作新视频**：按下面的标准工作流，用 `scripts/init.mjs` 生成可独立播放的项目，再按内容创作。
+- **已有 HTML 动画要导出**：读 @references/rendering-contract.md，把动画改为可由绝对秒数定位，并接入统一播放器。改变了画面、节奏或声音时先提供更新后的 HTML 预览；已确认的当前版本可直接导出。不要直接录屏后当作逐帧导出。
 - **使用 DOM/CSS、SVG、Canvas 或混合画面**：都放在同一个 `#stage`，实现同一个 `VIDEO_PROJECT.render(t, context)`；按渲染契约准备资源，不需要先转成 Canvas。
-- **添加旁白、音乐或字幕**：读 [references/audio.md](references/audio.md)。音频先形成与画面同一时间轴的 master；字幕可在画面中绘制，外部 SRT 另行交付。
-- **检查失败或导出异常**：读 [references/troubleshooting.md](references/troubleshooting.md)，根据报告修复，不通过降低验收门槛掩盖问题。
+- **添加旁白、音乐或字幕**：读 @references/audio.md。音频先形成与画面同一时间轴的 master；字幕可在画面中绘制，外部 SRT 另行交付。
+- **检查失败或导出异常**：读 @references/troubleshooting.md，根据报告修复，不通过降低验收门槛掩盖问题。
 
 ## 标准工作流
 
@@ -53,38 +67,44 @@ description_en: "Create directly playable, seekable HTML video projects and expo
 
 1. 按上方引导补齐必要需求，形成创作简报。**单次只制作一个画幅**。用户未说明画幅且上下文也不能确定时，先问：“这条做 1920×1080 横屏（推荐），还是 1080×1920 竖屏？”可与时长等问题合并询问；等待回答时可整理内容与事实。用户已有选择就不再问；明确让 agent 决定时默认横屏。默认 30fps，运动密集的作品可用 60fps。只有用户明确要求双版本时，才分别制作、导出和验收。
 2. 按简报写简短分镜表：每幕的起止秒数、要表达的内容、画面变化、声音与事实来源，让用户选择的节奏、风格和色系具体落到镜头。事实性介绍核对型号、日期、数值和来源；不要用想象的参数填空。简单动画可直接写进项目，无须额外规划文件。
-3. 检查导出环境，创建项目：
+3. 创建 HTML 项目；初始化只需 Node.js ≥22，播放只需浏览器，自动检查另需 Chrome/Edge：
 
    ```bash
-   node tools/doctor.mjs
-   node tools/init.mjs "path/to/my-video" --format landscape --fps 30 --duration 30
+   node scripts/init.mjs "path/to/my-video" --format landscape --fps 30 --duration 30
    ```
-
-   **缺少 FFmpeg / ffprobe 时，由 agent 自行准备好再继续**：先查找现有安装；没有则从 [FFmpeg 官方下载页](https://ffmpeg.org/download.html) 指向的构建来源下载适配系统的便携版，或使用已有的包管理器安装；校验、解压并配置路径后重跑 doctor。优先使用项目内 `.cache/ffmpeg/bin`，不要求用户手工下载安装。具体方法见 [环境准备](references/troubleshooting.md)。网络或权限确实阻断时，再准确说明阻断点。
 
    初始化只接受新目录，产出 `index.html`、`project.js`、`runtime.js`、`player.css`。浏览器资源使用项目内相对路径；直接双击 `index.html` 就能看到首帧并播放、暂停、拖动、重播。竖屏项目在初始化、检查和导出命令中统一使用 `--format portrait`。
 4. 创作 `project.js`，必要时增加本地图片、字体、CSS、脚本。`setup()` 只做初始化和静态预计算；`render(t)` 完整计算指定时刻的状态。时长、fps、章节和音轨在 `VIDEO_PROJECT` 统一声明，工具从页面读取。配乐需要踩点时，将 BPM、章节与重音 cue 放在共用时间表中，供画面和声音读取；按 [音画对齐方法](references/audio.md#音画对齐) 制作音轨。修改合成脚本后，重新生成 `audio.src` 指向的音频文件。
 5. 检查 HTML，再目检关键帧：
 
    ```bash
-   node tools/check.mjs "path/to/my-video" --format landscape --out output/my-preview
+   node scripts/check.mjs "path/to/my-video" --format landscape --out output/my-preview
    ```
 
-   检查实际使用 `file://` 打开页面，验证资源、乱序定位一致性以及播放/暂停/拖动/重播；生成 `sheet.html`、`sheet.png`、逐幕 PNG 和 `check-report.json`。对照创作简报目检文字、遮挡、风格和色系，再播放高负载片段检查流畅度、节奏与声音。卡顿时按 [播放性能检查](references/rendering-contract.md#播放性能检查) 调整。风格方向不确定时，可先展示一个代表性动态片段再扩展；两秒试导出另用于验证导出链路。
-6. 先试导出两秒，检查截图、编码和音轨链路，再导出完整作品：
+   检查实际使用 `file://` 打开页面，验证资源、乱序定位一致性以及播放/暂停/拖动/重播；生成 `sheet.html`、`sheet.png`、逐幕 PNG 和 `check-report.json`，不生成 MP4，也不依赖 FFmpeg / ffprobe。对照创作简报目检文字、遮挡、风格和色系，再播放高负载片段检查流畅度、节奏与声音。卡顿时按 [播放性能检查](references/rendering-contract.md#播放性能检查) 调整。风格方向不确定时，可先展示一个代表性 HTML 动态片段再扩展。
+6. **交付 HTML 预览并等待用户确认**：提供实际项目的 `index.html` 路径或预览入口，简述片长、画幅和声音状态，邀请用户播放查看。只展示截图或 agent 自检通过不能代替用户确认。未得到明确确认时在此结束本轮；有修改意见则回到创作与检查，再提供预览。
+7. **仅在用户确认当前 HTML、且交付目标包含 MP4 后**，检查导出环境：
 
    ```bash
-   node tools/export.mjs "path/to/my-video" --format landscape --smoke --out output/my-smoke
-   node tools/export.mjs "path/to/my-video" --format landscape --out output/my-film
+   node scripts/doctor.mjs
+   ```
+
+   **缺少 FFmpeg / ffprobe 时，由 agent 自行准备好再继续**：先查找现有安装；没有则从 [FFmpeg 官方下载页](https://ffmpeg.org/download.html) 指向的构建来源下载适配系统的便携版，或使用已有的包管理器安装；校验、解压并配置路径后重跑 doctor。优先使用项目内 `.cache/ffmpeg/bin`，不要求用户手工下载安装。具体方法见 [环境准备](references/troubleshooting.md#环境)。网络或权限确实阻断时，再准确说明阻断点。
+
+   先试导出两秒，检查截图、编码和音轨链路，通过后直接导出完整作品，无须在两次导出之间再问一次：
+
+   ```bash
+   node scripts/export.mjs "path/to/my-video" --format landscape --smoke --out output/my-smoke
+   node scripts/export.mjs "path/to/my-video" --format landscape --out output/my-film
    ```
 
    一条命令完成资源就绪、确定性检查、PNG 帧序列、可选 WAV、H.264/AAC 合成与成片验收。每次使用新输出目录；非空目录直接拒绝。导出中断时先定位并修正原因，再使用新的 `--out` 重跑，按 [中断与归档](references/troubleshooting.md#中断与归档) 保留排查材料。
-7. 实际播放 `video.mp4`，检查开头、转场、结尾与音画同步；有声音时试听音量、爆音与截断。确认 `render.json` 的 `status` 为 `complete`、`smoke` 为 `false`，`verify-report.json` 的 `ok` 为 `true`，并完成内容和视觉检查后交付。
+8. 实际播放 `video.mp4`，检查开头、转场、结尾与音画同步；有声音时试听音量、爆音与截断。确认 `render.json` 的 `status` 为 `complete`、`smoke` 为 `false`，`verify-report.json` 的 `ok` 为 `true`，并完成内容和视觉检查后交付。
 
    需要复核已有成片时：
 
    ```bash
-   node tools/verify.mjs output/my-film
+   node scripts/verify.mjs output/my-film
    ```
 
 ## 渲染契约
@@ -107,33 +127,33 @@ description_en: "Create directly playable, seekable HTML video projects and expo
 - 预览首帧要有内容；文字应在可读状态停留足够时间。必要时延长分镜，不靠快速闪过塞进全部内容。
 - 字体、图片和音乐随项目提供；使用有权使用的素材，记录所需署名。程序化生成画面与音乐是可选实现方式。
 - 官方评测、示意动画与创作者判断分开表述；示意流程不冒充实际产品运行录像。
-- 改内容或布局后，重新检查并导出受影响的画幅。改字体、音轨或帧率也属于需要重新验证的变化。
+- 改内容、布局、字体、音轨或帧率后，重新检查受影响的画幅，提供更新的 HTML 预览；用户确认后再导出。
 
 ## 交付与验收
 
-交付可直接打开的项目文件夹、MP4 和关键报告；不要只给一个依赖本机绝对路径的 HTML。
+预览阶段交付可直接打开的完整项目文件夹及已生成的检查报告，等待用户确认；HTML 本身可作为最终交付。确认并完成导出后，再交付 MP4 和导出验收报告。不要只给一个依赖本机绝对路径的 HTML。
 
 | 产物 | 用途 |
 | --- | --- |
-| `index.html` + 项目脚本/样式/素材 | 可双击播放和继续编辑的源项目 |
-| `video.mp4` | 最终视频，正式导出应覆盖全片 |
-| `render.json` | 实际尺寸、fps、帧数、时长、音轨、状态、样本和影片哈希 |
-| `verify-report.json` | 尺寸、帧率、帧数、时长、编码、音轨、全片解码、样本压缩误差 |
+| `index.html` + 项目脚本/样式/素材 | 预览阶段交付，可双击播放和继续编辑的源项目 |
+| `video.mp4` | 用户确认后导出的最终视频，正式导出应覆盖全片 |
+| `render.json` | 导出后生成：实际尺寸、fps、帧数、时长、音轨、状态、样本和影片哈希 |
+| `verify-report.json` | 导出后生成：尺寸、帧率、帧数、时长、编码、音轨、全片解码、样本压缩误差 |
 | `sheet.png` + `check-report.json` | 预览总览与播放器/确定性检查结果 |
 | `frames/`、`samples/`、可选 `master.wav` | 复查材料；交付后可按需清理 frames，保留 samples 才能重跑样本验收 |
 
-运行报告中的失败项必须修复。验收不分析语义正确性、审美、语音质量或全片响度；这些需要实际观看和试听。没有完成的检查在交付说明里如实写明。
+运行报告中的失败项必须修复。验收不分析语义正确性、审美、语音质量或全片响度；这些需要实际观看和试听。没有完成的检查在交付说明里如实写明。预览阶段说明“尚未导出 MP4，等待确认”，不把未导出视为任务失败。
 
 ## 参数与环境
 
-`--format` 接受 `landscape` / `portrait` 或 `1920x1080` / `1080x1920`；未传入时工具使用横屏。`export` 可用 `--crf 18`、`--preset medium` 调整编码，用 `--silent` 明确输出无声版本。帧率在 `project.js` 设置，可选 24/25/30/50/60。工具需要 Node.js ≥22、Chrome/Edge、FFmpeg 与 ffprobe，无 npm 运行依赖。通过 `CHROME_PATH`、`FFMPEG`、`FFPROBE` 指定可执行文件，或用 `HTML_VIDEO_FFMPEG_DIR` 指定 FFmpeg 所在的 bin 目录；配置方法见 [环境准备](references/troubleshooting.md#环境)。
+`--format` 接受 `landscape` / `portrait` 或 `1920x1080` / `1080x1920`；未传入时工具使用横屏。`export` 可用 `--crf 18`、`--preset medium` 调整编码，用 `--silent` 明确输出无声版本。帧率在 `project.js` 设置，可选 24/25/30/50/60。初始化需要 Node.js ≥22，HTML 播放只需浏览器；自动检查需要 Node.js 与 Chrome/Edge，导出才需要 FFmpeg 与 ffprobe，无 npm 运行依赖。通过 `CHROME_PATH`、`FFMPEG`、`FFPROBE` 指定可执行文件，或用 `HTML_VIDEO_FFMPEG_DIR` 指定 FFmpeg 所在的 bin 目录；配置方法见 [环境准备](references/troubleshooting.md#环境)。
 
 ## 关键文件
 
-- `template/`：可直接复制运行的 HTML、播放器和最小时间驱动示例。
-- `tools/init.mjs`：创建独立项目，拒绝覆盖已有目录。
-- `tools/doctor.mjs`：检查依赖及编码器，实际启动临时浏览器截图。
-- `tools/check.mjs`：离线资源、播放操作、乱序渲染与关键帧总览。
-- `tools/export.mjs`：逐帧渲染、可选音轨、合成与自动验收。
-- `tools/verify.mjs`：独立复核导出目录，不重写影片。
-- `tools/lib-*.mjs`：参数、环境、浏览器、项目加载与验收的共享逻辑。
+- `templates/`：可直接复制运行的 HTML、播放器和最小时间驱动示例。
+- `scripts/init.mjs`：创建独立项目，拒绝覆盖已有目录。
+- `scripts/doctor.mjs`：检查依赖及编码器，实际启动临时浏览器截图。
+- `scripts/check.mjs`：离线资源、播放操作、乱序渲染与关键帧总览。
+- `scripts/export.mjs`：逐帧渲染、可选音轨、合成与自动验收。
+- `scripts/verify.mjs`：独立复核导出目录，不重写影片。
+- `scripts/lib-*.mjs`：参数、环境、浏览器、项目加载与验收的共享逻辑。

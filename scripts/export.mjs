@@ -8,7 +8,7 @@ import { verify } from './lib-verify.mjs';
 await main(async () => {
   const o = args(undefined, ['smoke', 'silent']);
   allowArgs(o, ['format', 'out', 'crf', 'preset', 'smoke', 'silent']);
-  if (o._.length !== 1) throw Error('用法：node tools/export.mjs <项目或HTML> [--format portrait] [--smoke] [--out 新目录] [--silent]');
+  if (o._.length !== 1) throw Error('用法：node scripts/export.mjs <项目或HTML> [--format portrait] [--smoke] [--out 新目录] [--silent]');
   const file = htmlFile(o._[0]), mode = format(o.format);
   const crf = number(o.crf, 18, 0, 35, 'crf');
   const preset = o.preset || 'medium';

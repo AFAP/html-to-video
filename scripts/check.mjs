@@ -6,7 +6,7 @@ import { launch } from './lib-chrome.mjs';
 import { htmlFile, openProject, frame, sampleFrames, deterministic, playbackCheck } from './lib-project.mjs';
 await main(async () => {
   const o = args(); allowArgs(o, ['format', 'out']);
-  if (o._.length !== 1) throw Error('用法：node tools/check.mjs <项目或HTML> [--format portrait] [--out 目录]');
+  if (o._.length !== 1) throw Error('用法：node scripts/check.mjs <项目或HTML> [--format portrait] [--out 目录]');
   const file = htmlFile(o._[0]), mode = format(o.format);
   const out = path.resolve(o.out || path.join('output', 'preview-' + mode));
   fs.mkdirSync(out, { recursive: true });

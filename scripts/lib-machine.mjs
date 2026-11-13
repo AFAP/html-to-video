@@ -33,7 +33,7 @@ export function binaries() {
   return { ffmpeg, ffprobe };
 }
 export function run(bin, argv, { binary = false, timeout = 120000 } = {}) {
-  if (!bin) throw Error('缺少外部工具；先运行 node tools/doctor.mjs');
+  if (!bin) throw Error('缺少外部工具；先运行 node scripts/doctor.mjs');
   const r = spawnSync(bin, argv, { encoding: binary ? undefined : 'utf8', maxBuffer: 64 * 1024 * 1024, timeout, windowsHide: true });
   if (r.error) throw r.error;
   if (r.status !== 0) throw Error(`${path.basename(bin)} 退出码 ${r.status}：${String(r.stderr || '').slice(-4000)}`);

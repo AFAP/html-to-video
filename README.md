@@ -8,7 +8,7 @@
   <img src="brand/wordmark.png" alt="html-to-video" width="720">
 </p>
 
-> **用 HTML 做视频，双击即可播放，逐帧导出 MP4。**
+> **用 HTML 做视频，先在浏览器看效果，确认后再逐帧导出 MP4。**
 > 面向 AI Agent 的视频制作技能，将需求引导、时间轴动画、音画对齐和导出验收放进一套流程。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -25,8 +25,10 @@
 
 ```text
 需求与素材 → 创作简报 → 分镜与时间轴 → HTML 项目
-                                         ├─ 浏览器播放 / 暂停 / 定位
-                                         └─ 逐帧 PNG + 音轨 → MP4 → 验收报告
+                                         ↓
+                              浏览器播放 / 暂停 / 定位 → 修改并重新预览
+                                         ↓ 用户确认效果
+                              逐帧 PNG + 音轨 → MP4 → 验收报告
 ```
 
 ## 2. 功能特性
@@ -36,8 +38,8 @@
 - ✅ 支持 DOM/CSS、SVG、Canvas 或混合画面，以绝对秒数计算每一帧。
 - ✅ 支持 `1920×1080` 横屏与 `1080×1920` 竖屏，每次按需制作一个画幅。
 - ✅ 共用画面、音乐与字幕 cue；预览和导出使用同一音轨。
-- ✅ 自动执行离线资源检查、乱序定位检查、两秒试导出与全片验收。
-- ✅ 缺少 FFmpeg 时由 agent 准备依赖；运行脚本无需安装 npm 包。
+- ✅ 先检查并交付 HTML 预览，用户确认后才执行两秒试导出与全片验收。
+- ✅ HTML 预览不依赖 FFmpeg；确认导出后缺少依赖时由 agent 准备，无需安装 npm 包。
 
 ## 3. 目录结构
 
@@ -45,8 +47,8 @@
 html-to-video/
 ├── SKILL.md                 # 技能入口与制作规范
 ├── brand/                   # 黑白字标与彩色方形图标
-├── template/                # 可直接播放的项目模板
-├── tools/                   # 初始化、检查、导出与验收工具
+├── templates/               # 可直接播放的项目模板
+├── scripts/                 # 初始化、检查、导出与验收工具
 ├── references/              # 渲染接口、音频与故障处理
 ├── examples/
 │   └── deepseek-flash-4.1-1017-abyss/  # 示例源码、音轨、MP4 与预览动图
@@ -67,10 +69,10 @@ cd html-to-video
 
 将完整目录导入支持 `SKILL.md` 的 agent 平台，从 [技能入口](SKILL.md) 开始制作。只看示例时，下载仓库后双击 `examples/deepseek-flash-4.1-1017-abyss/index.html`；HTML 播放只需浏览器。
 
-导出需要 Node.js ≥22、Chrome/Edge、FFmpeg 与 ffprobe。先检查环境：
+初始化需要 Node.js ≥22，自动检查另需 Chrome/Edge。先完成 HTML 并让用户查看效果；确认导出后，再检查 FFmpeg 与 ffprobe：
 
 ```bash
-node tools/doctor.mjs
+node scripts/doctor.mjs
 ```
 
 缺少 FFmpeg / ffprobe 时，按 [环境准备](references/troubleshooting.md#环境) 查找或准备便携版，再重跑检查。
@@ -80,17 +82,22 @@ node tools/doctor.mjs
 以下命令在仓库根目录执行。
 
 ```bash
-node tools/init.mjs my-video --format landscape --fps 30 --duration 30
-node tools/check.mjs my-video --format landscape --out output/my-preview
-node tools/export.mjs my-video --format landscape --smoke --out output/my-smoke
-node tools/export.mjs my-video --format landscape --out output/my-film
-node tools/verify.mjs output/my-film
+node scripts/init.mjs my-video --format landscape --fps 30 --duration 30
+node scripts/check.mjs my-video --format landscape --out output/my-preview
 ```
 
-1. 初始化后修改 `my-video/project.js`，添加需要的本地素材，并双击 HTML 检查播放。
-2. 检查生成的 `sheet.png` 和 `check-report.json`；试听声音并连续播放关键片段。
-3. 两秒试导出通过后再导出全片。每次使用新的 `--out` 目录。
-4. 确认 `render.json` 的 `status` 为 `complete`、`smoke` 为 `false`，且 `verify-report.json` 的 `ok` 为 `true`，再交付源项目与 MP4。
+修改 `my-video/project.js`，添加需要的本地素材，检查生成的 `sheet.png` 和 `check-report.json`。将 `my-video/index.html` 提供给用户，双击即可播放、暂停、拖动和试听。**停在这里，等待用户确认实际效果；有修改先改 HTML 并重新预览。** 只需要 HTML 时即可完成交付。
+
+用户确认当前 HTML 后，再检查导出环境并运行以下命令；两秒试导出通过后直接继续全片导出：
+
+```bash
+node scripts/doctor.mjs
+node scripts/export.mjs my-video --format landscape --smoke --out output/my-smoke
+node scripts/export.mjs my-video --format landscape --out output/my-film
+node scripts/verify.mjs output/my-film
+```
+
+每次导出使用新的 `--out` 目录。确认 `render.json` 的 `status` 为 `complete`、`smoke` 为 `false`，且 `verify-report.json` 的 `ok` 为 `true`，实际播放检查后再交付源项目与 MP4。用户已看过并确认的当前 HTML，可直接进入导出阶段。
 
 竖屏项目将初始化、检查和导出命令中的 `--format landscape` 全部改为 `--format portrait`。只制作选定画幅；另一画幅需要重新布局和验收。
 
@@ -113,7 +120,7 @@ node tools/verify.mjs output/my-film
 | --- | --- |
 | HTML 首帧空白或资源缺失 | 检查相对路径、脚本加载顺序及浏览器异常 |
 | 跳转后画面不同 | 改用绝对时间计算，固定随机种子，清理跨帧状态 |
-| 音轨没有更新 | 重建 `audio.src` 指向的文件，再重新预览和导出 |
+| 音轨没有更新 | 重建 `audio.src` 指向的文件，重新预览，用户确认后再导出 |
 | 浏览器或编码器不可用 | 运行 `doctor`，按环境说明准备依赖 |
 | 导出中断或目录非空 | 保留报告定位原因，修正后使用新的输出目录 |
 
@@ -131,7 +138,7 @@ node tools/verify.mjs output/my-film
 node --test tests/pipeline.test.mjs
 ```
 
-运行时负责播放与时间定位，项目脚本负责画面，命令行工具负责截图、合成与验收。共享模块以 `tools/lib-*.mjs` 命名，与命令脚本放在同一目录。修改工具或模板后，执行自检，并在选定画幅上运行 `check` 与两秒试导出。纯 JavaScript 项目无需编译，直接从源码运行。
+运行时负责播放与时间定位，项目脚本负责画面，命令行工具负责截图、合成与验收。共享模块以 `scripts/lib-*.mjs` 命名，与命令脚本放在同一目录。修改工具或模板后，执行自检，并在选定画幅上运行 `check` 与两秒试导出。纯 JavaScript 项目无需编译，直接从源码运行。
 
 ## 10. 相关文档
 

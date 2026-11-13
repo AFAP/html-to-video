@@ -8,7 +8,7 @@
   <img src="brand/wordmark.png" alt="html-to-video" width="720">
 </p>
 
-> **Make videos with HTML: open them in a browser and export MP4 frame by frame.**
+> **Make videos with HTML: review them in a browser, then confirm before exporting MP4 frame by frame.**
 > An AI agent skill that combines creative briefing, timeline animation, audiovisual timing, and export verification.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -25,8 +25,10 @@ Make an HTML animation play in a browser and export reliably to video. Playback,
 
 ```text
 Brief and assets → Storyboard and timeline → HTML project
-                                             ├─ Play / pause / seek in a browser
-                                             └─ PNG frames + audio → MP4 → Verification
+                                             ↓
+                                Play / pause / seek → Revise and preview again
+                                             ↓ User approves the result
+                                PNG frames + audio → MP4 → Verification
 ```
 
 ## 2. Features
@@ -36,8 +38,8 @@ Brief and assets → Storyboard and timeline → HTML project
 - ✅ Use DOM/CSS, SVG, Canvas, or a combination; compute each frame from absolute time.
 - ✅ Support `1920×1080` landscape and `1080×1920` portrait, one requested format at a time.
 - ✅ Share visual, music, and caption cues; use the same soundtrack for preview and export.
-- ✅ Check offline resources and deterministic seeking, then run a two-second smoke export and full verification.
-- ✅ Let the agent prepare missing FFmpeg tools; no npm packages are required to run the scripts.
+- ✅ Check and deliver the HTML preview first; run smoke export and full verification after user approval.
+- ✅ Preview without FFmpeg; let the agent prepare export dependencies after approval. No npm packages are required.
 
 ## 3. Directory structure
 
@@ -45,8 +47,8 @@ Brief and assets → Storyboard and timeline → HTML project
 html-to-video/
 ├── SKILL.md                 # Skill entry point and production instructions
 ├── brand/                   # Monochrome wordmarks and color square icons
-├── template/                # Directly playable project template
-├── tools/                   # Initialize, check, export, and verify
+├── templates/               # Directly playable project template
+├── scripts/                 # Initialize, check, export, and verify
 ├── references/              # Rendering, audio, and troubleshooting
 ├── examples/
 │   └── deepseek-flash-4.1-1017-abyss/  # Source, soundtrack, MP4, and preview GIF
@@ -67,10 +69,10 @@ cd html-to-video
 
 Import the complete directory into an agent platform that supports `SKILL.md`, then start with the [skill instructions](SKILL.md). To watch the example, download the repository and open `examples/deepseek-flash-4.1-1017-abyss/index.html`. HTML playback only needs a browser.
 
-Export requires Node.js ≥22, Chrome/Edge, FFmpeg, and ffprobe. Check the environment first:
+Initialization needs Node.js ≥22; automated HTML checks also need Chrome/Edge. Let the user review the HTML first. After export approval, check FFmpeg and ffprobe:
 
 ```bash
-node tools/doctor.mjs
+node scripts/doctor.mjs
 ```
 
 If FFmpeg or ffprobe is missing, follow [environment setup](references/troubleshooting.md#环境) to locate or prepare a portable build, then rerun the check.
@@ -80,17 +82,22 @@ If FFmpeg or ffprobe is missing, follow [environment setup](references/troublesh
 Run these commands from the repository root.
 
 ```bash
-node tools/init.mjs my-video --format landscape --fps 30 --duration 30
-node tools/check.mjs my-video --format landscape --out output/my-preview
-node tools/export.mjs my-video --format landscape --smoke --out output/my-smoke
-node tools/export.mjs my-video --format landscape --out output/my-film
-node tools/verify.mjs output/my-film
+node scripts/init.mjs my-video --format landscape --fps 30 --duration 30
+node scripts/check.mjs my-video --format landscape --out output/my-preview
 ```
 
-1. Edit `my-video/project.js`, add local assets, and open the HTML file to check playback.
-2. Inspect `sheet.png` and `check-report.json`; listen to the audio and play important sections continuously.
-3. After the two-second smoke export passes, export the full video. Use a fresh `--out` directory each time.
-4. Deliver the source project and MP4 after `render.json` reports `status: complete` and `smoke: false`, and `verify-report.json` reports `ok: true`.
+Edit `my-video/project.js`, add local assets, and inspect `sheet.png` and `check-report.json`. Give the user `my-video/index.html` to open, play, pause, seek, and listen. **Stop here and wait for approval of the actual result.** Apply requested changes to HTML and preview again. An HTML-only request is complete at this stage.
+
+After the user approves the current HTML, check export dependencies and run the following commands. Continue to the full export once the two-second smoke export passes:
+
+```bash
+node scripts/doctor.mjs
+node scripts/export.mjs my-video --format landscape --smoke --out output/my-smoke
+node scripts/export.mjs my-video --format landscape --out output/my-film
+node scripts/verify.mjs output/my-film
+```
+
+Use a fresh `--out` directory each time. Deliver the source project and MP4 after `render.json` reports `status: complete` and `smoke: false`, `verify-report.json` reports `ok: true`, and playback has been reviewed. If the user has already reviewed and approved the current HTML, proceed directly to export.
 
 For portrait projects, replace `--format landscape` with `--format portrait` in initialization, checking, and export commands. Create only the selected format; another format needs its own layout and verification.
 
@@ -113,7 +120,7 @@ For portrait projects, replace `--format landscape` with `--format portrait` in 
 | --- | --- |
 | Blank first frame or missing resources | Check relative paths, script order, and browser errors |
 | Seeking changes the same frame | Use absolute time, seeded randomness, and clean drawing state |
-| Soundtrack changes are missing | Rebuild the file referenced by `audio.src`, then preview and export again |
+| Soundtrack changes are missing | Rebuild the file referenced by `audio.src`, preview again, and export after user approval |
 | Browser or encoder is unavailable | Run `doctor` and prepare dependencies using the setup guide |
 | Export stops or the output directory is not empty | Keep the reports, fix the cause, and use a fresh output directory |
 
@@ -131,7 +138,7 @@ The model introduction is an independent example. The DeepSeek name and whale ma
 node --test tests/pipeline.test.mjs
 ```
 
-The runtime handles playback and seeking, project scripts draw the frames, and command-line tools capture, encode, and verify the result. Shared modules use `tools/lib-*.mjs` names alongside the command scripts. After changing tools or templates, run the tests, `check`, and a two-second smoke export for the selected format. This JavaScript project runs directly from source without a compilation step.
+The runtime handles playback and seeking, project scripts draw the frames, and command-line tools capture, encode, and verify the result. Shared modules use `scripts/lib-*.mjs` names alongside the command scripts. After changing tools or templates, run the tests, `check`, and a two-second smoke export for the selected format. This JavaScript project runs directly from source without a compilation step.
 
 ## 10. Documentation
 
