@@ -56,6 +56,10 @@ export function sampleFrames(meta, count = meta.frames) {
       if (n >= 0 && n < count) set.add(n);
     }
   });
+  for (const cue of meta.captions || []) for (const t of [cue.start - 1 / meta.fps, cue.start, cue.end - 1 / meta.fps, cue.end]) {
+    const n = Math.round(t * meta.fps);
+    if (n >= 0 && n < count) set.add(n);
+  }
   return [...set].sort((a, b) => a - b);
 }
 export async function deterministic(project, samples) {

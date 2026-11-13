@@ -44,7 +44,7 @@
   document.getElementById('project-title').textContent = meta.title;
   const playButton = document.getElementById('play'), progress = document.getElementById('progress');
   const time = document.getElementById('time');
-  let t = 0, playing = false, starting = false, playToken = 0, raf = 0, busy = false, base = 0, audio = null, audioPromise = null;
+  let t = 0, playing = false, starting = false, playToken = 0, raf = 0, busy = false, base = 0, audio = null, audioPromise = null, captions = null;
   const clamp = v => Math.max(0, Math.min(duration, v));
   const clock = s => `${Math.floor(s / 60).toString().padStart(2, '0')}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
   function update() { progress.value = t / duration; time.textContent = `${clock(t)} / ${clock(duration)}`; }
@@ -58,6 +58,7 @@
     if (!Number.isFinite(value)) throw Error('render(t) 需要有限数字秒');
     t = clamp(value);
     await P.render(Math.min(t, last), ctx);
+    captions?.render(Math.min(t, last));
     update();
     return t;
   }
@@ -130,6 +131,12 @@
   api.ready = (async () => {
     await P.setup?.(ctx);
     await P.ready;
+    if (P.captions) {
+      if (!window.VideoCaptions) throw Error('使用字幕轨前请加载 captions.js');
+      captions = window.VideoCaptions.mount(stage, P.captions, ctx);
+      await captions.ready;
+      meta.captions = captions.cues;
+    }
     await render(0);
     await document.fonts.ready;
     await Promise.all(Array.from(stage.querySelectorAll('img')).map(img => img.decode()));

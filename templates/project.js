@@ -1,15 +1,21 @@
 // 只替换这个文件即可创作；DOM / SVG / Canvas 都能放在同一个 stage 内。
 (function () {
-  let canvas, g;
+  let canvas, g, scene;
   window.VIDEO_PROJECT = {
     title: '__TITLE__',
     defaultFormat: '__FORMAT__',
     formats: ['__FORMAT__'],
     fps: __FPS__, duration: __DURATION__,
     chapters: [{ at: 0, title: '开场' }, { at: 4, title: '时间驱动画面' }],
-    setup({ stage, width, height }) {
+    // cues 使用绝对秒数；可改用由 captions.mjs 导入的 window.VIDEO_CAPTIONS。
+    captions: { cues: [{ start: 0.6, end: 3.8, text: '先在 HTML 中查看效果，确认后再导出。' }] },
+    async setup({ stage, width, height }) {
       canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-      stage.append(canvas); g = canvas.getContext('2d');
+      stage.append(canvas);
+      g = canvas.getContext('2d', { willReadFrequently: new URLSearchParams(location.search).get('export') === '1' });
+      scene = VideoComponents.create(stage, { width, height });
+      scene.counter({ start: 4, end: __DURATION__, from: 0, to: 100, suffix: '%', label: '每一帧都可准确定位', fontSize: 100, rect: { x: 0.32, y: 0.64, width: 0.6, height: 0.2 } });
+      await scene.ready();
     },
     render(t, { width: w, height: h, format }) {
       g.resetTransform(); g.globalAlpha = 1; g.clearRect(0, 0, w, h);
@@ -23,7 +29,8 @@
       g.globalAlpha = e;
       g.fillText(t < 4 ? 'HTML，让画面动起来' : '每一帧，都有准确时间', w / 2, h * 0.54 + (1 - e) * 32);
       g.globalAlpha = 1; g.font = '32px "Microsoft YaHei", sans-serif'; g.fillStyle = '#b8cae9';
-      g.fillText('可播放 · 可定位 · 可导出 MP4', w / 2, h * 0.64);
+      if (t < 4) g.fillText('可播放 · 可定位 · 可导出 MP4', w / 2, h * 0.64);
+      scene.render(t);
     }
   };
 })();

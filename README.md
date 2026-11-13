@@ -38,6 +38,10 @@
 - ✅ 支持 DOM/CSS、SVG、Canvas 或混合画面，以绝对秒数计算每一帧。
 - ✅ 支持 `1920×1080` 横屏与 `1080×1920` 竖屏，每次按需制作一个画幅。
 - ✅ 共用画面、音乐与字幕 cue；预览和导出使用同一音轨。
+- ✅ 内置字幕轨，支持自动换行、SRT 导入及 SRT/VTT 输出。
+- ✅ 按时间混合旁白、配乐和音效，支持循环、淡入淡出与旁白压低配乐。
+- ✅ 组合标题、数字增长、对比条、流程图、图片运镜和字幕条。
+- ✅ 抽样预估渲染耗时与空间，中断后校验版本并复用完整帧。
 - ✅ 先检查并交付 HTML 预览，用户确认后才执行两秒试导出与全片验收。
 - ✅ HTML 预览不依赖 FFmpeg；确认导出后缺少依赖时由 agent 准备，无需安装 npm 包。
 
@@ -92,14 +96,35 @@ node scripts/check.mjs my-video --format landscape --out output/my-preview
 
 ```bash
 node scripts/doctor.mjs
+node scripts/export.mjs my-video --format landscape --estimate --out output/my-film
 node scripts/export.mjs my-video --format landscape --smoke --out output/my-smoke
 node scripts/export.mjs my-video --format landscape --out output/my-film
 node scripts/verify.mjs output/my-film
 ```
 
-每次导出使用新的 `--out` 目录。确认 `render.json` 的 `status` 为 `complete`、`smoke` 为 `false`，且 `verify-report.json` 的 `ok` 为 `true`，实际播放检查后再交付源项目与 MP4。用户已看过并确认的当前 HTML，可直接进入导出阶段。
+首次导出使用新的 `--out` 目录。中断且版本未变化时，原命令加 `--resume` 继续；源码、素材或参数改变后重新预览并换新目录。耗时估算只含逐帧渲染，编码与验收另计，详见 [预估与续跑](references/export.md)。确认 `render.json` 的 `status` 为 `complete`、`smoke` 为 `false`，且 `verify-report.json` 的 `ok` 为 `true`，实际播放检查后再交付源项目与 MP4。
 
 竖屏项目将初始化、检查和导出命令中的 `--format landscape` 全部改为 `--format portrait`。只制作选定画幅；另一画幅需要重新布局和验收。
+
+### 字幕、混音与画面组件
+
+在 `VIDEO_PROJECT` 中声明字幕轨即可自动进入 HTML 和 MP4：
+
+```js
+captions: {
+  cues: [{ start: 0.5, end: 3, text: '从想法到画面' }],
+  style: { fontSize: 40, bottom: 0.07, maxWidth: 0.84 }
+}
+```
+
+```bash
+node scripts/captions.mjs subtitles.srt --out my-video/subtitles.js
+node scripts/mix-audio.mjs my-video/mix.json --out my-video/assets/master.wav
+```
+
+导入字幕 JS 后在 `project.js` 前加载，设置 `captions: window.VIDEO_CAPTIONS`。混音配置逐条声明素材、角色、起点、裁剪和音量，生成 master 后接入 `audio.src` 并先在 HTML 试听，详见 [字幕与混音](references/audio.md)。
+
+模板还提供 `VideoComponents.create(stage, ctx)`，可组合 `title/counter/comparison/flow/image/lowerThird`；统一由 `scene.render(t)` 驱动，图片用 `await scene.ready()` 等待就绪，详见 [组件接口与示例](references/components.md)。
 
 ## 6. 配置项
 
@@ -110,6 +135,8 @@ node scripts/verify.mjs output/my-film
 | `--duration` | `8` 秒 | 初始化片长；创建后在 `project.js` 修改 |
 | `--crf` / `--preset` | `18` / `medium` | 调整 MP4 编码质量与速度 |
 | `--silent` | 关闭 | 明确导出无声版本 |
+| `--estimate` | 关闭 | 抽样估算渲染耗时与空间，不生成帧或影片 |
+| `--resume` | 关闭 | 核对版本并续跑同一输出目录 |
 | `CHROME_PATH` | 自动查找 | 指定 Chrome/Edge 可执行文件 |
 | `FFMPEG` / `FFPROBE` | 自动查找 | 指定 FFmpeg 与 ffprobe 可执行文件 |
 | `HTML_VIDEO_FFMPEG_DIR` | 自动查找 | 指定 FFmpeg 所在的 `bin` 目录 |
@@ -122,7 +149,7 @@ node scripts/verify.mjs output/my-film
 | 跳转后画面不同 | 改用绝对时间计算，固定随机种子，清理跨帧状态 |
 | 音轨没有更新 | 重建 `audio.src` 指向的文件，重新预览，用户确认后再导出 |
 | 浏览器或编码器不可用 | 运行 `doctor`，按环境说明准备依赖 |
-| 导出中断或目录非空 | 保留报告定位原因，修正后使用新的输出目录 |
+| 导出中断或目录非空 | 同版本使用原命令加 `--resume`；版本改变则使用新的输出目录 |
 
 完整处理步骤见 [环境与故障定位](references/troubleshooting.md)。
 
@@ -135,16 +162,19 @@ node scripts/verify.mjs output/my-film
 ## 9. 开发与验证
 
 ```bash
-node --test tests/pipeline.test.mjs
+npm test
+npm run test:integration
 ```
 
-运行时负责播放与时间定位，项目脚本负责画面，命令行工具负责截图、合成与验收。共享模块以 `scripts/lib-*.mjs` 命名，与命令脚本放在同一目录。修改工具或模板后，执行自检，并在选定画幅上运行 `check` 与两秒试导出。纯 JavaScript 项目无需编译，直接从源码运行。
+运行时负责播放与时间定位，项目脚本负责画面，命令行工具负责截图、混音、合成与验收。基础测试无需浏览器；集成测试需要 Chrome/Edge 和 FFmpeg，验证混音波形、两种画幅、字幕、组件、导出及坏帧恢复。测试材料保存在 `.test-output/`。纯 JavaScript 项目无需编译或安装 npm 包。
 
 ## 10. 相关文档
 
 - [技能入口与制作规范](SKILL.md)
 - [时间驱动的渲染接口](references/rendering-contract.md)
 - [音轨、配音与字幕](references/audio.md)
+- [可组合画面组件](references/components.md)
+- [导出预估与中断续跑](references/export.md)
 - [环境与故障定位](references/troubleshooting.md)
 
 ### 品牌素材

@@ -36,7 +36,9 @@ export const hash = bytes => crypto.createHash('sha256').update(bytes).digest('h
 export const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
 export function writeJson(file, value) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
+  const temp = file + '.' + process.pid + '.tmp';
+  fs.writeFileSync(temp, JSON.stringify(value, null, 2) + '\n');
+  fs.renameSync(temp, file);
 }
 export function inside(root, file) {
   const rel = path.relative(path.resolve(root), path.resolve(file));

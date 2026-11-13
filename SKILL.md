@@ -1,7 +1,7 @@
 ---
 name: html-to-video
 description: 用 HTML、CSS、SVG 或 Canvas 制作介绍视频、科普动画、动态演示和宣传短片，或将已有网页动画导出为 MP4。先交付可直接播放的 HTML 供用户查看效果，确认后再逐帧导出视频。
-version: "1.2.0"
+version: "1.3.0"
 display_name: HTML 视频制作器
 display_name_en: HTML Video Creator
 author: 阿富
@@ -58,7 +58,9 @@ examples_en:
 - **制作新视频**：按下面的标准工作流，用 `scripts/init.mjs` 生成可独立播放的项目，再按内容创作。
 - **已有 HTML 动画要导出**：读 @references/rendering-contract.md，把动画改为可由绝对秒数定位，并接入统一播放器。改变了画面、节奏或声音时先提供更新后的 HTML 预览；已确认的当前版本可直接导出。不要直接录屏后当作逐帧导出。
 - **使用 DOM/CSS、SVG、Canvas 或混合画面**：都放在同一个 `#stage`，实现同一个 `VIDEO_PROJECT.render(t, context)`；按渲染契约准备资源，不需要先转成 Canvas。
-- **添加旁白、音乐或字幕**：读 @references/audio.md。音频先形成与画面同一时间轴的 master；字幕可在画面中绘制，外部 SRT 另行交付。
+- **添加旁白、音乐或字幕**：读 @references/audio.md。用 `scripts/mix-audio.mjs` 将素材混成预览与导出共用的 master；字幕优先声明 `VIDEO_PROJECT.captions`，支持 SRT 导入和 SRT/VTT 交付。
+- **组合标题、数字、对比图、流程或图片运镜**：读 @references/components.md，使用模板自带的 `VideoComponents`，按内容组合并定制样式。
+- **估算导出或中断后继续**：读 @references/export.md。用户确认后可用 `--estimate` 预估；同版本续跑加 `--resume`，变化后换新输出目录。
 - **检查失败或导出异常**：读 @references/troubleshooting.md，根据报告修复，不通过降低验收门槛掩盖问题。
 
 ## 标准工作流
@@ -73,7 +75,7 @@ examples_en:
    node scripts/init.mjs "path/to/my-video" --format landscape --fps 30 --duration 30
    ```
 
-   初始化只接受新目录，产出 `index.html`、`project.js`、`runtime.js`、`player.css`。浏览器资源使用项目内相对路径；直接双击 `index.html` 就能看到首帧并播放、暂停、拖动、重播。竖屏项目在初始化、检查和导出命令中统一使用 `--format portrait`。
+   初始化只接受新目录，产出 `index.html`、`project.js`、`runtime.js`、`player.css`、`captions.js`、`components.js`。浏览器资源使用项目内相对路径；直接双击 `index.html` 就能看到首帧并播放、暂停、拖动、重播。竖屏项目在初始化、检查和导出命令中统一使用 `--format portrait`。
 4. 创作 `project.js`，必要时增加本地图片、字体、CSS、脚本。`setup()` 只做初始化和静态预计算；`render(t)` 完整计算指定时刻的状态。时长、fps、章节和音轨在 `VIDEO_PROJECT` 统一声明，工具从页面读取。配乐需要踩点时，将 BPM、章节与重音 cue 放在共用时间表中，供画面和声音读取；按 [音画对齐方法](references/audio.md#音画对齐) 制作音轨。修改合成脚本后，重新生成 `audio.src` 指向的音频文件。
 5. 检查 HTML，再目检关键帧：
 
@@ -91,14 +93,15 @@ examples_en:
 
    **缺少 FFmpeg / ffprobe 时，由 agent 自行准备好再继续**：先查找现有安装；没有则从 [FFmpeg 官方下载页](https://ffmpeg.org/download.html) 指向的构建来源下载适配系统的便携版，或使用已有的包管理器安装；校验、解压并配置路径后重跑 doctor。优先使用项目内 `.cache/ffmpeg/bin`，不要求用户手工下载安装。具体方法见 [环境准备](references/troubleshooting.md#环境)。网络或权限确实阻断时，再准确说明阻断点。
 
-   先试导出两秒，检查截图、编码和音轨链路，通过后直接导出完整作品，无须在两次导出之间再问一次：
+   可先用 `--estimate` 查看渲染耗时与空间估算，不创建帧或 MP4；实际编码和验收另计。再试导出两秒，检查截图、编码和音轨链路，通过后直接导出完整作品，无须在两次导出之间再问一次：
 
    ```bash
+   node scripts/export.mjs "path/to/my-video" --format landscape --estimate --out output/my-film
    node scripts/export.mjs "path/to/my-video" --format landscape --smoke --out output/my-smoke
    node scripts/export.mjs "path/to/my-video" --format landscape --out output/my-film
    ```
 
-   一条命令完成资源就绪、确定性检查、PNG 帧序列、可选 WAV、H.264/AAC 合成与成片验收。每次使用新输出目录；非空目录直接拒绝。导出中断时先定位并修正原因，再使用新的 `--out` 重跑，按 [中断与归档](references/troubleshooting.md#中断与归档) 保留排查材料。
+   一条命令完成资源就绪、确定性检查、耗时与空间估算、PNG 帧序列、可选 WAV、H.264/AAC 合成与成片验收。首次使用新输出目录。中断后源码、素材、参数和环境均未变化时，用原命令加 `--resume` 复用已校验的帧；缺失或损坏帧会补画。版本变化时拒绝复用，重新预览并换新目录，详见 [导出预估与续跑](references/export.md)。
 8. 实际播放 `video.mp4`，检查开头、转场、结尾与音画同步；有声音时试听音量、爆音与截断。确认 `render.json` 的 `status` 为 `complete`、`smoke` 为 `false`，`verify-report.json` 的 `ok` 为 `true`，并完成内容和视觉检查后交付。
 
    需要复核已有成片时：
@@ -140,6 +143,7 @@ examples_en:
 | `render.json` | 导出后生成：实际尺寸、fps、帧数、时长、音轨、状态、样本和影片哈希 |
 | `verify-report.json` | 导出后生成：尺寸、帧率、帧数、时长、编码、音轨、全片解码、样本压缩误差 |
 | `sheet.png` + `check-report.json` | 预览总览与播放器/确定性检查结果 |
+| `captions.srt` + `captions.vtt` | 声明统一字幕轨时，导出后生成的旁挂字幕；画面也已包含字幕 |
 | `frames/`、`samples/`、可选 `master.wav` | 复查材料；交付后可按需清理 frames，保留 samples 才能重跑样本验收 |
 
 运行报告中的失败项必须修复。验收不分析语义正确性、审美、语音质量或全片响度；这些需要实际观看和试听。没有完成的检查在交付说明里如实写明。预览阶段说明“尚未导出 MP4，等待确认”，不把未导出视为任务失败。
@@ -155,5 +159,7 @@ examples_en:
 - `scripts/doctor.mjs`：检查依赖及编码器，实际启动临时浏览器截图。
 - `scripts/check.mjs`：离线资源、播放操作、乱序渲染与关键帧总览。
 - `scripts/export.mjs`：逐帧渲染、可选音轨、合成与自动验收。
+- `scripts/captions.mjs`：SRT/JSON 字幕转换为可直接加载的 JS 或 SRT/VTT。
+- `scripts/mix-audio.mjs`：旁白、配乐、音效混音，支持起点、裁剪、循环、淡入淡出和配乐避让。
 - `scripts/verify.mjs`：独立复核导出目录，不重写影片。
 - `scripts/lib-*.mjs`：参数、环境、浏览器、项目加载与验收的共享逻辑。

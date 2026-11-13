@@ -74,6 +74,7 @@ export async function launch() {
     }
     return {
       executable: exe,
+      version: await send('Browser.getVersion'),
       async newPage() {
         const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
         const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });

@@ -2,9 +2,9 @@
 
 按用户选择制作配乐、旁白、字幕或无声版本。需要旁白时，先写并核对台词，再使用可用的配音工具生成音频文件；将最终文件放入项目，接入统一音轨。配音工具不可用时明确说明，先完成可继续制作的画面与字幕。
 
-## 两种接口
+音轨可使用项目内 master 文件或程序化 WAV。
 
-### 项目内 master 文件
+## 项目内 master 文件
 
 ```js
 audio: { src: 'assets/master.wav' }
@@ -12,9 +12,35 @@ audio: { src: 'assets/master.wav' }
 
 路径相对于 HTML 所在目录，必须位于项目文件夹内。浏览器用同一个文件预览，导出工具从磁盘读取，不能使用 HTTP URL、绝对路径或跳出项目的 `../`。
 
-音轨应从全片 0 秒起算，包含旁白、BGM、音效、留白。需要混音时先在当前环境中混好 master，再接入这个字段；导出工具不会猜测多条素材的播放时刻、音量和闪避关系。预览与导出使用同一 master；改声音后先重新预览，用户确认后再导出。
+音轨应从全片 0 秒起算，包含旁白、BGM、音效、留白。使用下方混音工具准备 master，再接入这个字段。预览与导出使用同一 master；改声音后先重新预览，用户确认后再导出。
 
-### 程序化 WAV
+## 多素材混音
+
+在项目根目录保存 `mix.json`，`src` 相对该配置文件所在目录，必须留在此目录内：
+
+```json
+{
+  "duration": 30,
+  "ducking": { "threshold": 0.025, "ratio": 8, "attack": 20, "release": 250 },
+  "tracks": [
+    { "src": "assets/voice.wav", "role": "narration", "start": 1, "volume": 1 },
+    { "src": "assets/bgm.wav", "role": "music", "loop": true, "volume": 0.25, "fadeIn": 1, "fadeOut": 2 },
+    { "src": "assets/hit.wav", "role": "sfx", "start": 8, "trim": 0.2, "duration": 0.5, "volume": 0.6 }
+  ]
+}
+```
+
+```bash
+node scripts/mix-audio.mjs path/to/my-video/mix.json --out path/to/my-video/assets/master.wav
+```
+
+输出 48kHz 双声道 WAV，也支持 `.m4a`，同时生成 `.mix.json` 报告，记录素材哈希及实际处理参数。已有输出拒绝覆盖，修改后使用新音轨名并更新 `audio.src`，在 HTML 中试听。混音仅处理声音，不导出画面；准备预览音轨时可按需使用 FFmpeg/ffprobe。
+
+`start` 是片中起点，`trim` 是源音频裁剪起点，`duration` 是使用长度，单位均为秒；省略长度时使用剩余素材并限制在全片内。短 BGM 可用 `loop: true` 循环。`volume` 为线性音量，`fadeIn/fadeOut` 在所选片段首尾生效。角色使用 `narration/music/sfx`；旁白按信号强度压低 music，sfx 不受影响。`ducking: false` 关闭避让，`attack/release` 单位为毫秒。总线限制峰值，但不替代试听或发布所需的响度处理。
+
+滤镜行为依据 [FFmpeg 官方滤镜文档](https://ffmpeg.org/ffmpeg-filters.html#sidechaincompress)。工具不生成语音，也不自动判断台词与画面的语义对应关系。
+
+## 程序化 WAV
 
 ```js
 audio: {
@@ -40,6 +66,31 @@ audio: {
 
 ## 字幕
 
-烧录字幕由 render(t) 根据 cue 画到 stage；定位到任意时刻都应正确显示，不用逐句计时器。SRT 可以额外输出，但只是旁挂字幕，不会自动进入 MP4。文字底边与手机界面遮挡区的安全距离按发布平台和实际内容确定，分别检查横屏和竖屏。
+新项目已在 `project.js` 前加载 `captions.js`。在 `VIDEO_PROJECT` 声明统一字幕轨，播放器会在 `render(t)` 后绘制到 stage，因此 HTML 预览和 MP4 使用同样的字幕：
+
+```js
+captions: {
+  cues: [
+    { start: 0.5, end: 3, text: '第一句字幕' },
+    { start: 3, end: 6, text: '第二句字幕\n也可以显式换行' }
+  ],
+  style: { fontSize: 40, bottom: 0.07, maxWidth: 0.84,
+    color: '#fff', background: 'rgba(0,0,0,.72)' }
+}
+```
+
+也可直接写 `captions: [{start, end, text}]`。时间为绝对秒数，开始包含、结束不包含；允许多条重叠，按开始顺序分行显示。字幕不可超过有效片长。文字自动换行，`bottom/maxWidth` 是画面比例；其他样式为 `fontFamily/lineHeight/padding/radius`。不解析字幕中的 HTML 标签，避免把文本当作网页代码。
+
+导入 SRT、导出 SRT/VTT：
+
+```bash
+node scripts/captions.mjs path/to/subtitles.srt --out path/to/my-video/subtitles.js
+node scripts/captions.mjs path/to/cues.json --out path/to/subtitles.srt
+node scripts/captions.mjs path/to/cues.json --out path/to/subtitles.vtt
+```
+
+转换工具接受 SRT 或 cues JSON，输出 `.js/.json/.srt/.vtt`，拒绝覆盖。导入的 JS 在 `project.js` 前以普通 script 加载，再写 `captions: window.VIDEO_CAPTIONS`，不需要 `fetch`。正式导出自动另存 `captions.srt` 和 `captions.vtt`；试导出会将旁挂字幕裁剪到试片长度。
+
+已有项目复制并加载 `captions.js` 即可使用。自定义字幕仍可直接绘制到 stage，但不要同时打开重复的内置字幕。文字底边与手机界面遮挡区的安全距离按发布平台和内容确定，检查所选画幅。
 
 无音轨项目会隐藏静音按钮；用户明确要无声版本可用 export 的 `--silent`。有 audio 声明却缺文件属于失败，不自动降级成无声成片。

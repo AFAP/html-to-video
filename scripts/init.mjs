@@ -16,7 +16,7 @@ await main(() => {
   for (const name of fs.readdirSync(template)) fs.copyFileSync(path.join(template, name), path.join(target, name));
   const file = path.join(target, 'project.js');
   const title = JSON.stringify(o.title || path.basename(target)).slice(1, -1).replace(/'/g, "\\'");
-  const text = fs.readFileSync(file, 'utf8').replace('__TITLE__', () => title).replaceAll('__FORMAT__', mode).replace('__FPS__', String(fps)).replace('__DURATION__', String(duration));
+  const text = fs.readFileSync(file, 'utf8').replace('__TITLE__', () => title).replaceAll('__FORMAT__', mode).replace('__FPS__', String(fps)).replaceAll('__DURATION__', String(duration));
   fs.writeFileSync(file, text);
   console.log(`项目已创建：${target}\n双击 index.html 即可播放；修改 project.js 创作画面。\n导出命令仍在技能目录运行，不需要把 scripts 复制进项目。`);
 });

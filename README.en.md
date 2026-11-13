@@ -38,6 +38,10 @@ Brief and assets → Storyboard and timeline → HTML project
 - ✅ Use DOM/CSS, SVG, Canvas, or a combination; compute each frame from absolute time.
 - ✅ Support `1920×1080` landscape and `1080×1920` portrait, one requested format at a time.
 - ✅ Share visual, music, and caption cues; use the same soundtrack for preview and export.
+- ✅ Built-in caption tracks with wrapping, SRT import, and SRT/VTT output.
+- ✅ Mix narration, music, and effects with timing, looping, fades, and automatic music ducking.
+- ✅ Compose titles, counters, comparison bars, flows, image zooms, and lower thirds.
+- ✅ Estimate rendering time and disk space; resume interrupted exports with validated frames.
 - ✅ Check and deliver the HTML preview first; run smoke export and full verification after user approval.
 - ✅ Preview without FFmpeg; let the agent prepare export dependencies after approval. No npm packages are required.
 
@@ -92,14 +96,35 @@ After the user approves the current HTML, check export dependencies and run the 
 
 ```bash
 node scripts/doctor.mjs
+node scripts/export.mjs my-video --format landscape --estimate --out output/my-film
 node scripts/export.mjs my-video --format landscape --smoke --out output/my-smoke
 node scripts/export.mjs my-video --format landscape --out output/my-film
 node scripts/verify.mjs output/my-film
 ```
 
-Use a fresh `--out` directory each time. Deliver the source project and MP4 after `render.json` reports `status: complete` and `smoke: false`, `verify-report.json` reports `ok: true`, and playback has been reviewed. If the user has already reviewed and approved the current HTML, proceed directly to export.
+Use a fresh `--out` directory for a new export. After interruption, add `--resume` to the original command if the source, assets, parameters, and environment are unchanged. Otherwise review the updated HTML and use a new directory. Estimates cover frame rendering; encoding and verification take additional time. See [estimates and recovery](references/export.md). Deliver after `render.json` reports `status: complete` and `smoke: false`, `verify-report.json` reports `ok: true`, and playback has been reviewed.
 
 For portrait projects, replace `--format landscape` with `--format portrait` in initialization, checking, and export commands. Create only the selected format; another format needs its own layout and verification.
+
+### Captions, audio mixing, and visual components
+
+Declare a caption track in `VIDEO_PROJECT` to render it in both HTML and MP4:
+
+```js
+captions: {
+  cues: [{ start: 0.5, end: 3, text: 'From ideas to moving images' }],
+  style: { fontSize: 40, bottom: 0.07, maxWidth: 0.84 }
+}
+```
+
+```bash
+node scripts/captions.mjs subtitles.srt --out my-video/subtitles.js
+node scripts/mix-audio.mjs my-video/mix.json --out my-video/assets/master.wav
+```
+
+Load the generated subtitle JS before `project.js` and set `captions: window.VIDEO_CAPTIONS`. A mix configuration specifies each asset's role, timing, trim, volume, and fades. Set `audio.src` to the generated master and listen in HTML first. See [captions and mixing](references/audio.md).
+
+`VideoComponents.create(stage, ctx)` provides `title/counter/comparison/flow/image/lowerThird`. Drive them through `scene.render(t)` and await `scene.ready()` for images. See the [component API and examples](references/components.md).
 
 ## 6. Configuration
 
@@ -110,6 +135,8 @@ For portrait projects, replace `--format landscape` with `--format portrait` in 
 | `--duration` | `8` seconds | Initial duration; edit `project.js` afterward |
 | `--crf` / `--preset` | `18` / `medium` | Set MP4 encoding quality and speed |
 | `--silent` | Off | Explicitly export without audio |
+| `--estimate` | Off | Sample rendering time and disk usage without producing frame files or MP4 |
+| `--resume` | Off | Validate the project version and continue in the same output directory |
 | `CHROME_PATH` | Auto-detected | Path to the Chrome/Edge executable |
 | `FFMPEG` / `FFPROBE` | Auto-detected | Paths to FFmpeg and ffprobe executables |
 | `HTML_VIDEO_FFMPEG_DIR` | Auto-detected | Directory containing the FFmpeg binaries |
@@ -122,7 +149,7 @@ For portrait projects, replace `--format landscape` with `--format portrait` in 
 | Seeking changes the same frame | Use absolute time, seeded randomness, and clean drawing state |
 | Soundtrack changes are missing | Rebuild the file referenced by `audio.src`, preview again, and export after user approval |
 | Browser or encoder is unavailable | Run `doctor` and prepare dependencies using the setup guide |
-| Export stops or the output directory is not empty | Keep the reports, fix the cause, and use a fresh output directory |
+| Export stops or the output directory is not empty | Add `--resume` for an unchanged project; use a fresh directory after changes |
 
 See [environment and troubleshooting](references/troubleshooting.md) for full instructions.
 
@@ -135,16 +162,19 @@ The model introduction is an independent example. The DeepSeek name and whale ma
 ## 9. Development and validation
 
 ```bash
-node --test tests/pipeline.test.mjs
+npm test
+npm run test:integration
 ```
 
-The runtime handles playback and seeking, project scripts draw the frames, and command-line tools capture, encode, and verify the result. Shared modules use `scripts/lib-*.mjs` names alongside the command scripts. After changing tools or templates, run the tests, `check`, and a two-second smoke export for the selected format. This JavaScript project runs directly from source without a compilation step.
+The runtime handles playback and seeking; command-line tools mix, capture, encode, and verify. Unit tests do not need a browser. Integration tests require Chrome/Edge and FFmpeg and cover audio waveforms, both layouts, captions, components, export, and frame recovery. Test artifacts stay in `.test-output/`. No compilation or npm package installation is required.
 
 ## 10. Documentation
 
 - [Skill entry point and production instructions](SKILL.md)
 - [Time-driven rendering interface](references/rendering-contract.md)
 - [Audio, voiceover, and captions](references/audio.md)
+- [Composable visual components](references/components.md)
+- [Export estimates and recovery](references/export.md)
 - [Environment and troubleshooting](references/troubleshooting.md)
 
 ### Brand assets

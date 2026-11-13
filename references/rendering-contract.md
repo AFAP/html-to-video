@@ -9,6 +9,8 @@ my-video/
   index.html       播放页面，普通 script 按依赖顺序加载
   project.js       内容、元数据、setup、render
   runtime.js       从技能模板复制，播放/定位/资源就绪
+  captions.js      字幕解析、显示及 SRT/VTT 序列化
+  components.js    标题、数字、对比条、流程、图片与字幕条
   player.css       播放外壳与 export 模式
   assets/          按需添加的本地图片、音轨、字体
 ```
@@ -27,6 +29,7 @@ window.VIDEO_PROJECT = {
   fps: 30,
   duration: 12,                         // 秒，可不是整帧；运行时向上取整
   chapters: [{ at: 0, title: '开场' }, { at: 6, title: '过程' }],
+  captions: { cues: [{ start: 0.5, end: 3, text: '字幕示例' }] }, // 可选
   async setup({ stage, width, height, format }) {
     // 一次性建 DOM / Canvas、预计算粒子、等待本地图片和字体。
   },
@@ -38,6 +41,8 @@ window.VIDEO_PROJECT = {
 ```
 
 `formats` 可省略；省略时允许两种画幅入口。单次只需实现选定画幅，不要求双版本；指定后播放器隐藏未提供的入口。`chapters.at` 按递增秒数排列，范围 `[0,有效片长)`；运行时不因为章节或旁白自动延长片长。更改片长需在源项目中明确修改。
+
+字幕轨由运行时在项目 `render(t)` 后更新，与画面使用同一时间入口。接口详见 [音轨与字幕](audio.md)；可复用的 DOM 动效见 [画面组件](components.md)。已有项目不声明字幕轨时无需加载 captions.js，原接口继续可用。
 
 运行时暴露：
 
