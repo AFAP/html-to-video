@@ -42,6 +42,7 @@ Brief and assets → Storyboard and timeline → HTML project
 - ✅ Mix narration, music, and effects with timing, looping, fades, and automatic music ducking.
 - ✅ Compose titles, counters, comparison bars, flows, image zooms, and lower thirds.
 - ✅ Estimate rendering time and disk space; resume interrupted exports with validated frames.
+- ✅ A standalone music workbench with original motifs, chord voicings, section arrangements, A/B comparison, stems, video sync, and WAV/MIDI export.
 - ✅ Check and deliver the HTML preview first; run smoke export and full verification after user approval.
 - ✅ Preview without FFmpeg; let the agent prepare export dependencies after approval. No npm packages are required.
 
@@ -53,6 +54,7 @@ html-to-video/
 ├── brand/                   # Monochrome wordmarks and color square icons
 ├── templates/               # Directly playable project template
 ├── scripts/                 # Initialize, check, export, and verify
+├── workbench/               # Standalone original-score workbench
 ├── references/              # Rendering, audio, and troubleshooting
 ├── examples/
 │   └── deepseek-flash-4.1-1017-abyss/  # Source, soundtrack, MP4, and preview GIF
@@ -128,6 +130,19 @@ Load the generated subtitle JS before `project.js` and set `captions: window.VID
 
 ## 6. Configuration
 
+### Standalone music workbench
+
+Open [workbench/index.html](workbench/index.html). Choose cinematic, warm, or electronic scoring, then adjust tempo, key, motif development, energy, and space. Bundled multi-zone piano, string, and bass samples can be compared with lightweight synthesis. The piano roll, sections, rendered waveform, and six stem controls show how the arrangement works. Compare A/B or import a local video for synchronized playback. See the [sample credits and license](workbench/SAMPLES-LICENSE.txt).
+
+```bash
+node scripts/music.mjs init output/my-score --preset cinema --duration 32
+node scripts/music.mjs render path/to/score.json --out path/to/my-video/assets/score.wav
+```
+
+Save a configuration in the workbench, then render the same arrangement to 48kHz WAV, MIDI, and a video cue timeline. Set the video's `audio.src` to the WAV; mix narration separately when needed. Music preview does not start video export. See [music design and the workbench](references/music.md).
+
+### Tool parameters
+
 | Setting | Default | Usage |
 | --- | --- | --- |
 | `--format` | `landscape` | Select landscape or `portrait` |
@@ -175,6 +190,7 @@ The runtime handles playback and seeking; command-line tools mix, capture, encod
 - [Audio, voiceover, and captions](references/audio.md)
 - [Composable visual components](references/components.md)
 - [Export estimates and recovery](references/export.md)
+- [Original music and the standalone workbench](references/music.md)
 - [Environment and troubleshooting](references/troubleshooting.md)
 
 ### Brand assets

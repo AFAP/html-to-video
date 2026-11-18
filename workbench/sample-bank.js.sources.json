@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "processing": "Decoded to 22.05kHz mono 16-bit PCM, duration-limited and 50ms tail fade",
+  "sources": [
+    {
+      "file": "C2.mp3",
+      "instrument": "piano",
+      "midi": 36,
+      "sha256": "7029a9e84f748433bc33d067ee13d37d0b866768f09ae6c7dac8e2e98e1e53ca",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "C3.mp3",
+      "instrument": "piano",
+      "midi": 48,
+      "sha256": "bb70dd921d81b3dda561c19b5c029292ae5a6fba1947e364bf274218ce19a9d1",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "Ds3.mp3",
+      "instrument": "piano",
+      "midi": 51,
+      "sha256": "4fe73ea3f2c59a1dbfb35cff1d9d8a9e38cb12ef39a91a13083729544cdafed5",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "Fs3.mp3",
+      "instrument": "piano",
+      "midi": 54,
+      "sha256": "960fefd90f56608b7edf958dadfeca893cff5744ab9034d61e419401fe45ce9c",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "A3.mp3",
+      "instrument": "piano",
+      "midi": 57,
+      "sha256": "8e108fe228e34e32f6b4e61efff732eec53058a9e6f05a8d8e719598b132c4f9",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "C4.mp3",
+      "instrument": "piano",
+      "midi": 60,
+      "sha256": "689eaa4c2fd7f29a2cc0e386eec462156d523a87d701269e5e2458e66056f4f6",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "Ds4.mp3",
+      "instrument": "piano",
+      "midi": 63,
+      "sha256": "663e8bb3e2d0fa23a30526dcd7ab0e42609c193c07025647ef46badcf81ec211",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "Fs4.mp3",
+      "instrument": "piano",
+      "midi": 66,
+      "sha256": "613652f5c96e35736ce6a46bc4ddb6ba1076d1fb16a35a4c22c14e67efdde57c",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "A4.mp3",
+      "instrument": "piano",
+      "midi": 69,
+      "sha256": "a62df24a2c84cea8d18c1fa8aca7c18c877ba2b76a00a591256fa74d3ce54ac3",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "C5.mp3",
+      "instrument": "piano",
+      "midi": 72,
+      "sha256": "2f5b0f7422063010fb379e684bfdf2daa3911dcd2251413d79fa2a53029fdc30",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "Ds5.mp3",
+      "instrument": "piano",
+      "midi": 75,
+      "sha256": "bf71096e653ab7ceca3914b9fd44d8c27fe83c162564c5db34bd06b94eb14b8c",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "Fs5.mp3",
+      "instrument": "piano",
+      "midi": 78,
+      "sha256": "ed2fdf543274ea72ddd4eb634a16356531a5f4040b2a60d34fb12a5c72cbf22f",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "A5.mp3",
+      "instrument": "piano",
+      "midi": 81,
+      "sha256": "9e5cee1fe9cf68b7193623d46a27c8956e572c1ff234ca0e11599b556050dec6",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "C6.mp3",
+      "instrument": "piano",
+      "midi": 84,
+      "sha256": "0d3232edd13ba69fd5caf4a295060ae0fd533b8a1433ae0a038644d70715c907",
+      "pcmFrames": 121275
+    },
+    {
+      "file": "strings-48.mp3",
+      "instrument": "strings",
+      "midi": 48,
+      "sha256": "9e1473b471b22fa129ad63118e378088b45c0cb3767b61b7b21999eb7415f185",
+      "pcmFrames": 66150
+    },
+    {
+      "file": "strings-55.mp3",
+      "instrument": "strings",
+      "midi": 55,
+      "sha256": "4b11c0bf78fe9cb494ba5f8adca6406b26cf923628b19b9a9c176bf193404111",
+      "pcmFrames": 66150
+    },
+    {
+      "file": "strings-60.mp3",
+      "instrument": "strings",
+      "midi": 60,
+      "sha256": "e2ca8e8308c6ab163508f351617af213923fc59d3d380148f1d0df756db109e3",
+      "pcmFrames": 66150
+    },
+    {
+      "file": "strings-67.mp3",
+      "instrument": "strings",
+      "midi": 67,
+      "sha256": "dbff92d84f73b1854c90c5da3f46cc2b5755ff087b708936f18e454fc008086e",
+      "pcmFrames": 66150
+    },
+    {
+      "file": "strings-72.mp3",
+      "instrument": "strings",
+      "midi": 72,
+      "sha256": "17af2f3d0956ce6b9faacba437f6b48bc43aa1c0f36a700edb7be92df3149239",
+      "pcmFrames": 66150
+    },
+    {
+      "file": "bass-28.mp3",
+      "instrument": "bass",
+      "midi": 28,
+      "sha256": "e0992776e6e789c6654406c78d49ee994cb9abb4a4592708f2a2a1c8e139cd34",
+      "pcmFrames": 68992
+    },
+    {
+      "file": "bass-33.mp3",
+      "instrument": "bass",
+      "midi": 33,
+      "sha256": "6e9d3dee6b42b0cec224c630a710379398b96b53000e1b9cde6f9195840c0696",
+      "pcmFrames": 68992
+    },
+    {
+      "file": "bass-38.mp3",
+      "instrument": "bass",
+      "midi": 38,
+      "sha256": "2c51a7d0b2d8b497f5e6e2a9e3bec31167b86b867e67084855c12f26f2b74864",
+      "pcmFrames": 68992
+    },
+    {
+      "file": "bass-43.mp3",
+      "instrument": "bass",
+      "midi": 43,
+      "sha256": "09f54a76e7c5804269b97b895ead2b8c2b5161f2ea95f26bbb833d8218358325",
+      "pcmFrames": 68992
+    },
+    {
+      "file": "bass-48.mp3",
+      "instrument": "bass",
+      "midi": 48,
+      "sha256": "decea7714f2c8831cf9b3fc16f4779b63413c64317921d901c7fb52e097b88b4",
+      "pcmFrames": 68992
+    }
+  ]
+}

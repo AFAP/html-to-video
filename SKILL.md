@@ -1,7 +1,7 @@
 ---
 name: html-to-video
 description: 用 HTML、CSS、SVG 或 Canvas 制作介绍视频、科普动画、动态演示和宣传短片，或将已有网页动画导出为 MP4。先交付可直接播放的 HTML 供用户查看效果，确认后再逐帧导出视频。
-version: "1.3.0"
+version: "1.4.0"
 display_name: HTML 视频制作器
 display_name_en: HTML Video Creator
 author: 阿富
@@ -59,6 +59,7 @@ examples_en:
 - **已有 HTML 动画要导出**：读 @references/rendering-contract.md，把动画改为可由绝对秒数定位，并接入统一播放器。改变了画面、节奏或声音时先提供更新后的 HTML 预览；已确认的当前版本可直接导出。不要直接录屏后当作逐帧导出。
 - **使用 DOM/CSS、SVG、Canvas 或混合画面**：都放在同一个 `#stage`，实现同一个 `VIDEO_PROJECT.render(t, context)`；按渲染契约准备资源，不需要先转成 Canvas。
 - **添加旁白、音乐或字幕**：读 @references/audio.md。用 `scripts/mix-audio.mjs` 将素材混成预览与导出共用的 master；字幕优先声明 `VIDEO_PROJECT.captions`，支持 SRT 导入和 SRT/VTT 交付。
+- **创作原创配乐或需要单独调音乐**：读 @references/music.md。打开 `workbench/index.html` 或用 `scripts/music.mjs init` 创建独立工作台，先比较主题、和声、配器和段落，再将确认的 WAV 接入视频。支持分轨试听、A/B 对比、视频同步和 MIDI 输出，不自动导出 MP4。
 - **组合标题、数字、对比图、流程或图片运镜**：读 @references/components.md，使用模板自带的 `VideoComponents`，按内容组合并定制样式。
 - **估算导出或中断后继续**：读 @references/export.md。用户确认后可用 `--estimate` 预估；同版本续跑加 `--resume`，变化后换新输出目录。
 - **检查失败或导出异常**：读 @references/troubleshooting.md，根据报告修复，不通过降低验收门槛掩盖问题。
@@ -161,5 +162,6 @@ examples_en:
 - `scripts/export.mjs`：逐帧渲染、可选音轨、合成与自动验收。
 - `scripts/captions.mjs`：SRT/JSON 字幕转换为可直接加载的 JS 或 SRT/VTT。
 - `scripts/mix-audio.mjs`：旁白、配乐、音效混音，支持起点、裁剪、循环、淡入淡出和配乐避让。
+- `scripts/music.mjs` 与 `workbench/`：原创配乐生成、独立试听与参数调节，输出 WAV、MIDI、方案与画面时间轴。
 - `scripts/verify.mjs`：独立复核导出目录，不重写影片。
 - `scripts/lib-*.mjs`：参数、环境、浏览器、项目加载与验收的共享逻辑。

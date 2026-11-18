@@ -42,6 +42,7 @@
 - ✅ 按时间混合旁白、配乐和音效，支持循环、淡入淡出与旁白压低配乐。
 - ✅ 组合标题、数字增长、对比条、流程图、图片运镜和字幕条。
 - ✅ 抽样预估渲染耗时与空间，中断后校验版本并复用完整帧。
+- ✅ 独立配乐工作台：原创动机、和声连接、分段配器，支持 A/B、分轨试听、视频同步和 WAV/MIDI 导出。
 - ✅ 先检查并交付 HTML 预览，用户确认后才执行两秒试导出与全片验收。
 - ✅ HTML 预览不依赖 FFmpeg；确认导出后缺少依赖时由 agent 准备，无需安装 npm 包。
 
@@ -53,6 +54,7 @@ html-to-video/
 ├── brand/                   # 黑白字标与彩色方形图标
 ├── templates/               # 可直接播放的项目模板
 ├── scripts/                 # 初始化、检查、导出与验收工具
+├── workbench/               # 可双击打开的原创配乐工作台
 ├── references/              # 渲染接口、音频与故障处理
 ├── examples/
 │   └── deepseek-flash-4.1-1017-abyss/  # 示例源码、音轨、MP4 与预览动图
@@ -128,6 +130,19 @@ node scripts/mix-audio.mjs my-video/mix.json --out my-video/assets/master.wav
 
 ## 6. 配置项
 
+### 独立配乐工作台
+
+双击 [workbench/index.html](workbench/index.html)，选择叙事电影、温暖讲述或精密电子，调整速度、调性、动机与空间感。内置多音区钢琴、弦乐与贝斯采样，支持切换合成音色作比较。乐谱、段落、实际波形和六个分轨帮助判断每层声音的作用；支持 A/B 对比和本地视频同步试听。音色来源与署名见 [采样许可](workbench/SAMPLES-LICENSE.txt)。
+
+```bash
+node scripts/music.mjs init output/my-score --preset cinema --duration 32
+node scripts/music.mjs render path/to/score.json --out path/to/my-video/assets/score.wav
+```
+
+工作台保存方案后，命令行可生成同一编排的 48kHz WAV、MIDI 与 `score.timeline.js`。将 WAV 接入项目 `audio.src`；有旁白时再用混音工具合成 master。音乐试听不触发视频导出。详见 [配乐设计与工作台](references/music.md)。
+
+### 工具参数
+
 | 配置 | 默认值 | 用法 |
 | --- | --- | --- |
 | `--format` | `landscape` | 选择横屏或 `portrait` 竖屏 |
@@ -175,6 +190,7 @@ npm run test:integration
 - [音轨、配音与字幕](references/audio.md)
 - [可组合画面组件](references/components.md)
 - [导出预估与中断续跑](references/export.md)
+- [原创配乐与独立工作台](references/music.md)
 - [环境与故障定位](references/troubleshooting.md)
 
 ### 品牌素材

@@ -1,6 +1,6 @@
 {
   "name": "html-to-video",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "可直接打开的 HTML 动画与确定性逐帧 MP4 导出技能",
   "license": "MIT",
   "repository": {
@@ -14,8 +14,8 @@
   },
   "scripts": {
     "doctor": "node scripts/doctor.mjs",
-    "test": "node --test tests/pipeline.test.mjs tests/features.test.mjs",
-    "test:integration": "node --test tests/integration.test.mjs"
+    "test": "node --test tests/pipeline.test.mjs tests/features.test.mjs tests/music.test.mjs",
+    "test:integration": "node --test tests/integration.test.mjs tests/music-browser.test.mjs"
   },
   "dependencies": {}
 }

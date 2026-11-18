@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><title>配乐工作台 · Score Room</title></head>
+<body>
+  <header class="masthead"><a class="brand" href="#"><span class="brand-mark">♫</span><span>SCORE ROOM<small>HTML 视频 · 配乐工作台</small></span></a><span class="local-label"><i></i><span id="engine-label">本地生成 · 采样乐器</span></span><div class="header-actions"><label class="button subtle">打开方案<input id="import-config" type="file" accept=".json" hidden></label><button id="save-config" class="button subtle">保存方案</button><button id="export-wav" class="button primary" disabled>导出 WAV <span>↗</span></button></div></header>
+  <main>
+    <aside class="control-rail">
+      <div class="eyebrow">COMPOSE / 创作方向</div><h1>让音乐<br>跟着叙事走。</h1><p class="intro">从一个原创动机出发，听见主题如何展开、变化，再回到落点。</p>
+      <div class="field"><label for="preset">配乐方向</label><select id="preset"><option value="cinema">叙事电影 · 空间与推进</option><option value="warm">温暖讲述 · 轻盈与留白</option><option value="pulse">精密电子 · 律动与层次</option></select><p id="preset-note" class="hint"></p></div>
+      <div class="field"><label for="soundEngine">音色</label><select id="soundEngine"><option value="sampled">采样乐器 · 钢琴 / 弦乐 / 贝斯</option><option value="synthetic">轻量合成 · 对比音色</option></select></div>
+      <div class="two-fields"><div class="field"><label for="bpm">速度 <span>BPM</span></label><input id="bpm" type="number" min="60" max="150" value="88"></div><div class="field"><label for="duration">片长 <span>秒</span></label><input id="duration" type="number" min="8" max="120" value="32"></div></div>
+      <div class="two-fields"><div class="field"><label for="key">主音</label><select id="key"><option value="0">C</option><option value="1">C♯</option><option value="2" selected>D</option><option value="3">E♭</option><option value="4">E</option><option value="5">F</option><option value="6">F♯</option><option value="7">G</option><option value="8">A♭</option><option value="9">A</option><option value="10">B♭</option><option value="11">B</option></select></div><div class="field"><label for="mode">调式</label><select id="mode"><option value="minor">自然小调</option><option value="major">大调</option><option value="dorian">多利亚</option></select></div></div>
+      <div class="field range-field"><label for="energy">推进强度 <output id="energy-value">58%</output></label><input id="energy" type="range" min="0" max="100" value="58"><div class="range-ends"><span>克制</span><span>饱满</span></div></div>
+      <div class="field range-field"><label for="variation">动机变化 <output id="variation-value">65%</output></label><input id="variation" type="range" min="0" max="100" value="65"><div class="range-ends"><span>主题重复</span><span>移位与节奏变形</span></div></div>
+      <div class="field range-field"><label for="space">空间感 <output id="space-value">48%</output></label><input id="space" type="range" min="0" max="100" value="48"><div class="range-ends"><span>贴近</span><span>开阔</span></div></div>
+      <details><summary>编辑主题与随机种子</summary><div class="field"><label for="motif">主题音级</label><input id="motif" value="0, 2, 4, 3, 1, 2"><p class="hint">0 为主音；保留轮廓，通过配器与节奏发展主题。</p></div><div class="field"><label for="seed">种子</label><input id="seed" type="number" min="1" max="2147483647" value="17026"></div></details>
+      <button id="generate" class="button primary generate">生成并试听 <span>▶</span></button><progress id="generation-progress" max="1" value="0" hidden aria-label="生成进度"></progress><p id="status" role="status">乐谱已就绪。点击生成，试听完整配乐。</p>
+    </aside>
+    <section class="workspace" aria-label="编曲与试听">
+      <div class="workspace-head"><div><div class="eyebrow">ORIGINAL SCORE / 原创编排</div><h2 id="score-title">叙事电影 <span>01</span></h2></div><div class="score-meta"><strong id="score-bpm">88 BPM</strong><span id="score-key">D 小调</span><span id="score-duration">00:32</span></div></div>
+      <section class="arrangement" aria-label="配乐结构">
+        <div class="section-label"><h3>叙事结构</h3><span>点击段落定位，循环试听这一段</span></div>
+        <div id="sections" class="sections"></div>
+        <div class="arc-wrap"><canvas id="arc" height="82" aria-label="各段落编排力度示意"></canvas><span class="arc-caption">编排力度</span></div>
+      </section>
+      <section class="note-area" aria-label="旋律与和声">
+        <div class="section-label"><h3>主题与和声 <span class="tiny-tag">可视乐谱</span></h3><div class="compare" role="group" aria-label="动机方式对比"><button data-compare="repeat" aria-pressed="false">A · 主题重复</button><button data-compare="develop" aria-pressed="true" class="active">B · 发展编排</button></div></div>
+        <div class="roll-wrap"><canvas id="piano-roll" height="205" aria-label="旋律与和声音符，横轴为时间；点击定位" role="img"></canvas><div id="playhead" class="playhead" hidden></div></div>
+        <div id="phrase-labels" class="phrase-labels"></div>
+        <div class="legend"><span><i class="melody"></i>主题旋律</span><span><i class="harmony"></i>和声声部</span><span id="current-note">动机：原形 → 回答 → 变化 → 回归</span></div>
+      </section>
+      <section class="wave-area" aria-label="实际音频波形"><div class="section-label"><h3>完整混音</h3><span id="audio-stats">生成后显示实际波形与峰值</span></div><canvas id="waveform" height="76" aria-label="实际生成音频的波形，点击定位" role="img"></canvas></section>
+      <section class="transport" aria-label="播放控制"><button id="play" class="play-button" aria-label="播放配乐" disabled>▶</button><button id="restart" class="icon-button" aria-label="回到开头">↺</button><output id="clock" aria-live="off">00:00.0 <span>/ 00:32.0</span></output><input id="seek" type="range" min="0" max="32" step="0.01" value="0" aria-label="播放位置"><label class="loop-control"><input id="loop" type="checkbox">循环所选段</label><button id="save-midi" class="button subtle">MIDI</button><button id="save-timeline" class="button subtle">时间轴</button></section>
+      <section class="mixer-area" aria-label="分轨混音"><div class="section-label"><h3>听见每一层</h3><span>音量、静音与独听即时生效；导出使用当前混音</span></div><div id="mixer" class="mixer"></div></section>
+      <section class="bottom-grid"><div class="video-panel"><div class="section-label"><h3>与画面一起试听</h3><label class="button subtle small">导入本地视频<input id="import-video" type="file" accept="video/*" hidden></label></div><div id="video-placeholder" class="video-placeholder"><span>▷</span><p>导入视频，和配乐同步播放</p><small>文件仅在本机打开</small></div><video id="video" controls muted hidden></video><label class="video-sound"><input id="video-sound" type="checkbox">同时听视频原声</label></div>
+      <div class="method-panel"><div class="section-label"><h3>这次编排做了什么</h3><span class="tiny-tag">创作笔记</span></div><ol><li><b>一个主题，反复被认出</b><span>保留核心轮廓，中段让位，在重点与结尾再现。</span></li><li><b>和声流动，声部少跳动</b><span>在和弦转位中选择相邻位置，让连接更平顺。</span></li><li><b>留白、叠层，再收束</b><span>按段落安排织体与鼓组，末尾回到主和弦。</span></li></ol><details><summary>参考视频与学习范围</summary><p>已对参考视频公开音轨完成本机转写，研读动机与改编相关讲解。这里重点应用：保留短主题的辨识度、用配器改变情绪、中段让位、重点再现与结尾呼应。音乐片段及人名的转写有误差，学习记录见技能参考资料。</p><a href="https://www.bilibili.com/video/BV1B8bv66E9x/" target="_blank" rel="noreferrer">查看参考视频 ↗</a><p>使用授权的钢琴、弦乐与贝斯采样，不含视频中的歌曲片段。<a href="SAMPLES-LICENSE.txt" target="_blank">音色来源与署名 ↗</a></p></details></div></section>
+      <footer>试听与导出共用同一乐谱。配乐确认后，可接入视频项目的 <code>audio.src</code>；画面导出仍等待确认。</footer>
+    </section>
+  </main>
+  <script src="score-config.js"></script><script src="sample-bank.js"></script><script src="music-engine.js"></script><script src="app.js"></script>
+</body></html>
