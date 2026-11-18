@@ -81,6 +81,9 @@
     const t=now();$('clock').replaceChildren(document.createTextNode(clock(t)+' '));const total=document.createElement('span');total.textContent='/ '+clock(state.config.duration);$('clock').append(total);$('seek').value=t;
     $('playhead').hidden=!state.rendered;$('playhead').style.left=(34+(Math.max(0,$('piano-roll').clientWidth-37))*t/state.config.duration)+'px';
     const phrase=state.score.phrases.findLast(p=>p.at<=t);$('current-note').textContent=phrase?`${phrase.transform} · ${clock(phrase.at)}`:'原创主题';
+    const absoluteBeat=Math.floor((t+1e-6)/state.score.beat),currentBeat=absoluteBeat%4;
+    $('beat-position').textContent=`第 ${Math.floor(absoluteBeat/4)+1} 小节 · 第 ${currentBeat+1} 拍`;
+    document.querySelectorAll('.beat-dot').forEach((dot,i)=>dot.classList.toggle('active',i===currentBeat));
     if(state.playing){for(const track of M.TRACKS){const analyzer=state.meters[track.id];if(!analyzer)continue;const data=new Float32Array(analyzer.fftSize);analyzer.getFloatTimeDomainData(data);let rms=0;for(const v of data)rms+=v*v;const value=Math.min(100,Math.sqrt(rms/data.length)*450);$('meter-'+track.id).style.width=value+'%';}}
   }
   function pause() {

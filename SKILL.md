@@ -1,7 +1,7 @@
 ---
 name: html-to-video
 description: 用 HTML、CSS、SVG 或 Canvas 制作介绍视频、科普动画、动态演示和宣传短片，或将已有网页动画导出为 MP4。先交付可直接播放的 HTML 供用户查看效果，确认后再逐帧导出视频。
-version: "1.4.0"
+version: "1.4.1"
 display_name: HTML 视频制作器
 display_name_en: HTML Video Creator
 author: 阿富

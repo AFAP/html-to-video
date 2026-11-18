@@ -1,6 +1,6 @@
 {
   "name": "html-to-video",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "可直接打开的 HTML 动画与确定性逐帧 MP4 导出技能",
   "license": "MIT",
   "repository": {

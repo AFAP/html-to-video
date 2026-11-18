@@ -12,8 +12,8 @@
     { id: 'space', label: '空间', color: '#a7a9b0' }
   ];
   const PRESETS = {
-    cinema: { label: '叙事电影', bpm: 76, key: 2, mode: 'minor', energy: 0.45, space: 0.36, description: '采样钢琴、柔和弦乐与疏朗低音，以完整乐句推进。' },
-    warm: { label: '温暖讲述', bpm: 96, key: 0, mode: 'major', energy: 0.38, space: 0.3, description: '采样钢琴、开放和声与疏朗伴奏，为讲述留白。' },
+    cinema: { label: '叙事电影', bpm: 88, key: 2, mode: 'minor', energy: 0.45, space: 0.3, description: '八分音符钢琴贯穿，低音与轻打击乐托住四拍，弦乐逐层推进。' },
+    warm: { label: '温暖讲述', bpm: 96, key: 0, mode: 'major', energy: 0.38, space: 0.24, description: '规律的钢琴分解和弦、轻低音与边鼓，旋律以问答乐句展开。' },
     pulse: { label: '精密电子', bpm: 116, key: 9, mode: 'minor', energy: 0.75, space: 0.24, description: '切分低音、短音型与分层鼓组，适合信息推进。' }
   };
   const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
@@ -51,76 +51,87 @@
     const c = config(input), rand = random(c.seed), beat = 60 / c.bpm, bar = 4 * beat;
     const scale = c.mode === 'major' ? [0, 2, 4, 5, 7, 9, 11] : c.mode === 'dorian' ? [0, 2, 3, 5, 7, 9, 10] : [0, 2, 3, 5, 7, 8, 10];
     const degree = (n, octave = 60) => octave + c.key + scale[((n % 7) + 7) % 7] + Math.floor(n / 7) * 12;
-    const bars = Math.max(2, Math.ceil((c.duration - 1.4) / bar));
+    let registerShift = 0;
+    while(degree(c.motifDegrees[0],60)+registerShift>68)registerShift-=12;
+    while(degree(c.motifDegrees[0],60)+registerShift<57)registerShift+=12;
+    const closingBar = Math.max(1, Math.floor((c.duration - 1.1) / bar)), bars = closingBar + 1;
     const sectionNames = ['铺陈', '展开', '推进', '收束'], energies = [0.34, 0.65, 1, 0.32];
-    const sectionAt = b => b >= bars - Math.max(1, Math.round(bars * .18)) ? 3 : b < bars * .2 ? 0 : b < bars * .6 ? 1 : 2;
+    const phraseCount = Math.ceil(closingBar / 2);
+    const sectionAt = b => b === closingBar ? 3 : b < 2 ? 0 : Math.floor(b / 2) < Math.ceil(phraseCount * .65) ? 1 : 2;
     const sections = [], chords = [], notes = [], phrases = [];
-    let prev, lastSection = -1, lastMelody = degree(c.motifDegrees[0], 60), nextPhraseBar = 0;
+    let prev, lastSection = -1, lastMelody = degree(c.motifDegrees[0], 60);
     const add = (track, at, length, midi, velocity, instrument, pan = 0) => {
       if (at < 0 || at >= c.duration - .12 || length <= 0) return;
       notes.push({ track, at: +at.toFixed(6), length: +Math.min(length, c.duration - at).toFixed(6), midi, velocity: clamp(velocity, 0, .7), instrument, pan: clamp(pan, -.8, .8), seed: Math.floor(rand() * 2147483646) + 1 });
     };
+    // 先铺好整曲和声，旋律落在下一小节时也能找到实际和弦。
     for (let b = 0; b < bars; b++) {
-      const section = sectionAt(b), energy = energies[section] * c.energy, at = b * bar;
+      const section = sectionAt(b), at = b * bar;
       if (section !== lastSection) { if (sections.length) sections.at(-1).end = at; sections.push({ title: sectionNames[section], start: at, end: c.duration, energy: energies[section] }); lastSection = section; }
-      const rootDegree = b === bars - 1 ? 0 : (c.mode === 'major' ? [0, 5, 3, 4] : [0, 5, 2, 6])[Math.floor(b / 2) % 4];
-      const pcs = [0, 2, 4, 6].map(n => degree(rootDegree + n, 0) % 12);
+      const rootDegree = b === closingBar ? 0 : (c.mode === 'major' ? [0, 4, 5, 3] : [0, 5, 2, 6])[b % 4];
+      const pcs = (b === closingBar ? [0, 2, 4] : [0, 2, 4, 6]).map(n => degree(rootDegree + n, 0) % 12);
       const voices = nearestVoicing(pcs, prev); prev = voices;
-      const chord = { at, end: Math.min(c.duration, at + bar), root: degree(rootDegree, 36), notes: voices, degree: rootDegree };
+      let root = degree(rootDegree, 36); while(root > 47) root -= 12;
+      const chord = { at, end: b === closingBar ? c.duration : at + bar, root, notes: voices, degree: rootDegree };
       chords.push(chord);
-      voices.forEach((n, i) => add('harmony', at + i * .012, b === bars - 1 ? c.duration - at : bar * 1.14, n, .032 + energy * .025, c.preset === 'warm' ? 'keys' : 'pad', (i - 1.5) * .32));
-      const bassPattern = section === 0 || section === 3 ? [0] : c.preset === 'pulse' ? [0, 1.5, 2.75] : [0];
-      bassPattern.forEach((v, i) => add('bass', at + v * beat, (section === 3 ? 2.7 : .8) * beat, chord.root + (i === 2 ? 12 : 0), .12 + energy * .08, 'bass'));
-      if (b >= nextPhraseBar || b===bars-1 || (b>0&&section!==sectionAt(b-1))) {
-        nextPhraseBar=b+2;
-        const phrase = Math.floor(b / 2), developed = c.motifMode === 'develop' && c.variation > 0;
-        const fragment=developed&&section===1;
-        const transform = !developed || phrase === 0 ? '原形' : section === 3 ? '主题回归' : fragment?'留白 · 主题片段':phrase % 3 === 1 ? '移位回答' : phrase % 3 === 2 ? '节奏变形' : '尾句变化';
-        phrases.push({ at, end: Math.min(c.duration, at + 2 * bar), transform });
-        const rhythm = c.preset==='pulse'?[0,1.5,2,3.5,5,6.5,7,7.5]:[0,1,2.5,4.25,5.25,6.5,7,7.5];
-        c.motifDegrees.forEach((d, i) => {
-          if(fragment&&![0,2].includes(i))return;
-          if (section === 3 && i > 0) return;
-          if (section === 0 && energy < .2 && i % 2) return;
-          let step = d;
-          if (developed && phrase > 0 && section !== 3) {
+    }
+    // 各段共用同一拍点；只改变力度与配器，不撤掉整个节奏主干。
+    for (let b = 0; b < bars; b++) {
+      const section = sectionAt(b), energy = energies[section] * c.energy, chord = chords[b], at = chord.at, ending = b === closingBar;
+      chord.notes.forEach((n, i) => add('harmony', at + i * .008, ending ? c.duration - at : bar - .18, n, .026 + energy * .02, c.preset === 'warm' ? 'keys' : 'pad', (i - 1.5) * .3));
+      const bassPattern = ending ? [0] : c.preset === 'pulse' ? [0, 1.5, 2, 3.5] : [0, 2];
+      bassPattern.forEach((v, i) => add('bass', at + v * beat, (ending ? 2.5 : i % 2 ? .68 : .88) * beat, chord.root + (c.preset === 'pulse' && i === 3 ? 12 : 0), (.105 + energy * .065) * (i % 2 ? .8 : 1), 'bass'));
+      const arp = [0, 2, 1, 2, 0, 2, 1, 2], accents = [1, .55, .74, .58, .9, .55, .76, .62];
+      for (let i = 0; i < (ending ? 4 : 8); i++) {
+        add('pulse', at + i * .5 * beat, .43 * beat, chord.notes[arp[i]], (.032 + c.energy * .022) * (.68 + energies[section] * .32) * accents[i] * (ending ? 1 - i * .16 : 1), 'pluck', i % 2 ? .24 : -.24);
+      }
+      const drumLevel = c.preset === 'pulse' ? 1 : c.preset === 'warm' ? .58 : .68;
+      (ending ? [0] : [0, 2]).forEach(v => add('drums', at + v * beat, .32, 36, (.09 + energy * .08) * drumLevel, 'kick'));
+      if (!ending) {
+        [1, 3].forEach(v => add('drums', at + v * beat + .006, .09, c.preset === 'pulse' ? 38 : 37, (.048 + energy * .04) * drumLevel, c.preset === 'pulse' ? 'snare' : 'rim'));
+        for (let i = 0; i < 8; i++) add('drums', at + i * .5 * beat + (i % 2 ? .004 : 0), .065, 42, (.018 + energy * .018) * drumLevel * (i % 2 ? .8 : .52), 'hat', i % 2 ? .22 : -.22);
+      }
+    }
+    // 乐句固定在两小节网格，段落边界不另起一套重叠旋律。
+    const rhythms = {3:[0,3,6],4:[0,2,4.5,6],5:[0,1.5,3,4.5,6],6:[0,1,1.5,3,4.5,6],7:[0,1,1.5,3,4,5,6.5],8:[0,1,1.5,2.5,4,5,6,7]};
+    const developed = c.motifMode === 'develop' && c.variation > 0;
+    for (let b = 0; b < closingBar; b += 2) {
+        const at = b * bar, phrase = b / 2, section = sectionAt(b), energy = energies[section] * c.energy, end = Math.min((b + 2) * bar, closingBar * bar);
+        const fragment = developed && section === 1 && phrase % 2 === 1;
+        const transform = !developed || phrase === 0 ? '原形' : fragment ? '留白 · 主题片段' : section === 2 ? '主题再现' : phrase % 3 === 1 ? '移位回答' : phrase % 3 === 2 ? '节奏变形' : '尾句变化';
+        phrases.push({ at, end, transform });
+        const rhythm = [...rhythms[c.motifDegrees.length]];
+        if (transform === '节奏变形' && rhythm.length >= 5) { rhythm[1] += .5; rhythm[2] += .5; }
+        // 整句移调保持主题轮廓；不逐音贪心找最近八度，把上行五度折成下行四度。
+        const startChord=chords[b],head=c.motifDegrees[0];
+        const shifts=developed&&phrase>0?[-2,-1,0,1,2].filter(v=>startChord.notes.some(n=>n%12===degree(head+v,0)%12)):[0];
+        const phraseShift=shifts.reduce((a,v)=>Math.abs(v)<Math.abs(a)?v:a,shifts[0]??0);
+        const events = c.motifDegrees.map((d, i) => ({d,i,at:at + rhythm[i] * beat})).filter(e => e.at < end - .1 && (!fragment || e.i % 2 === 0 || e.i === c.motifDegrees.length - 1));
+        events.forEach(({d,i,at:eventAt}, eventIndex) => {
+          let step = d + phraseShift;
+          if (developed && phrase > 0) {
             if (transform === '移位回答') step += Math.round(c.variation * 2);
             if (transform === '尾句变化' && i >= c.motifDegrees.length - 2) step += i % 2 ? -1 : 1;
           }
-          let midi = degree(step, 60);
-          const phaseBeat = rhythm[i] * (transform === '节奏变形' ? 1 - c.variation * .1 : 1);
-          const eventAt = at + phaseBeat * beat;
-          const current = chords.findLast(x => x.at <= eventAt) || chord;
-          if (developed && (i===0 || i===c.motifDegrees.length-1)) {
+          let midi = degree(step, 60) + registerShift;
+          const current = chords.findLast(x => x.at <= eventAt + 1e-6);
+          if (developed && i===c.motifDegrees.length-1) {
             const choices = current.notes.flatMap(n => [n-12,n,n+12]).filter(n => n >= 55 && n <= 79);
             if (choices.length) midi = choices.reduce((a, n) => Math.abs(n - midi) < Math.abs(a - midi) ? n : a);
           }
-          while (midi - lastMelody > 7) midi -= 12;
-          while (lastMelody - midi > 7) midi += 12;
-          while(midi>84)midi-=12;while(midi<55)midi+=12;lastMelody=midi;
-          const nextBeat=rhythm[i+1]??8,gate=i===c.motifDegrees.length-1?1.15:Math.max(.5,nextBeat-rhythm[i]-.18);
-          add('melody', eventAt + (i ? (rand() - .5) * .022 : 0), gate * beat, midi, (.105 + energy * .035) * ([1,.78,.9,.85,.74,.88][i%6]) * (.96 + rand() * .08), c.preset === 'pulse' ? 'pluck' : 'keys', (i % 2 ? 1 : -1) * .1);
+          const candidates = [-36,-24,-12,0,12,24,36].map(v => midi + v).filter(n => n >= 55 && n <= 79);
+          const intended=midi;
+          midi = candidates.reduce((a,n) => Math.abs(n - intended) < Math.abs(a - intended) ? n : a); lastMelody = midi;
+          const next = events[eventIndex + 1]?.at ?? end;
+          const timing = eventIndex ? (rand() - .5) * .012 : 0;
+          add('melody', eventAt + timing, Math.max(.12, next - eventAt - .09), midi, (.105 + energy * .04) * ([1,.78,.88,.92,.8,.9][i%6]) * (.97 + rand() * .06), c.preset === 'pulse' ? 'pluck' : 'keys', (i % 2 ? 1 : -1) * .08);
         });
-      }
-      if (section === 1 || section === 2) {
-        const count = c.preset === 'pulse' ? 8 : 4;
-        for (let i = 0; i < count; i++) {
-          if (c.preset !== 'pulse' && (i%2 || section!==2)) continue;
-          add('pulse', at + (i * 4 / count + .25) * beat, .65 * beat, voices[i % voices.length] + 12, .024 + energy * .024, 'pluck', i % 2 ? .5 : -.5);
-        }
-      }
-      if ((section===1||section===2)&&c.preset==='pulse') {
-        [0,1.75,2.5].forEach(v=>add('drums',at+v*beat,.42,36,.16+energy*.15,'kick'));
-        [1,3].forEach(v=>add('drums',at+v*beat+.008,.2,38,.065+energy*.055,'snare'));
-        for(let i=0;i<(section===2?8:4);i++)add('drums',at+i*(section===2?.5:1)*beat+(i%2?.009:0),.07,42,(.018+energy*.023)*(i%2?1:.6),'hat',i%2?.3:-.3);
-      } else if(section===2) {
-        add('drums',at,.65,36,.06,'impact');
-      }
-      if (section !== sectionAt(Math.max(0, b - 1)) && b > 0) add('drums', at, .85, 36, .16, 'impact');
     }
-    // 末尾回到主和弦，尾音在实际片长内衰减，而非任意截断循环。
-    const endAt = (bars - 1) * bar;
-    if(!notes.some(n=>n.track==='melody'&&Math.abs(n.at-endAt)<.05))add('melody',endAt,Math.min(2*beat,c.duration-endAt),degree(0,60),.09,'keys');
+    const endAt = closingBar * bar;
+    phrases.push({at:endAt,end:c.duration,transform:c.motifMode === 'repeat' ? '原形' : '主题回归'});
+    const tonics = [-12,0,12].map(n=>degree(0,60)+n).filter(n=>n>=55&&n<=79);
+    const tonic = tonics.reduce((a,n)=>Math.abs(n-lastMelody)<Math.abs(a-lastMelody)?n:a);
+    add('melody',endAt,Math.min(2.5*beat,c.duration-endAt),tonic,.115,c.preset === 'pulse' ? 'pluck' : 'keys');
     return { version: 1, config: c, duration: c.duration, bpm: c.bpm, beat, bar, bars, sections, chords, phrases, notes: notes.sort((a, b) => a.at - b.at) };
   }
   let sampleCache;
@@ -168,7 +179,7 @@
         } else if (n.instrument === 'pluck') v = Math.sin(TAU * f * t + Math.sin(TAU * f * 2 * t) * 1.6 * Math.exp(-t * 14)) * Math.exp(-t * 5.4) + .14 * Math.sin(TAU * f * 2.003 * t) * Math.exp(-t * 9);
         else if (n.instrument === 'bass') v = (Math.sin(TAU * f * t) + .24 * Math.sin(TAU * f * 2 * t) * Math.exp(-t * 4) + .1 * Math.sin(TAU * f * 3 * t) * Math.exp(-t * 8)) * Math.exp(-t * 1.5);
         else if (n.instrument === 'kick' || n.instrument === 'impact') v = Math.sin(TAU * (44 * t + 2.5 * (1 - Math.exp(-t * 40)))) * Math.exp(-t * (n.instrument === 'impact' ? 6 : 12));
-        else { const noise = rand() * 2 - 1; low += (noise - low) * (n.instrument === 'hat' ? .45 : .12); v = (noise - low) * Math.exp(-t * (n.instrument === 'hat' ? 65 : 24)); if (n.instrument === 'snare') v += .3 * Math.sin(TAU * 180 * t) * Math.exp(-t * 35); }
+        else { const noise = rand() * 2 - 1; low += (noise - low) * (n.instrument === 'hat' ? .45 : .12); v = (noise - low) * Math.exp(-t * (n.instrument === 'hat' ? 65 : n.instrument === 'rim' ? 110 : 24)); if (n.instrument === 'snare') v += .3 * Math.sin(TAU * 180 * t) * Math.exp(-t * 35); if(n.instrument==='rim')v=v*.35+(Math.sin(TAU*1750*t)+.5*Math.sin(TAU*2380*t))*Math.exp(-t*90)*.65; }
         v *= attack * release;
         l[i] += v * left; r[i] += v * right;
         if (['keys', 'pad', 'pluck'].includes(n.instrument)) wet[i] += v * n.velocity * (n.instrument === 'pad' ? .25 : .4);

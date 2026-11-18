@@ -26,6 +26,23 @@ test('和弦连接选择相邻声部，并保留各和弦音',()=>{
   const voicing=M.nearestVoicing([0,4,7,11],[55,60,64,71]);assert.deepEqual(voicing.map(n=>n%12).sort((a,b)=>a-b),[0,4,7,11]);
   assert.ok(voicing.reduce((s,n,i)=>s+Math.abs(n-[55,60,64,71][i]),0)<15);
 });
+
+test('伴奏跨段保持连续拍点，乐句与旋律不因切段重叠',()=>{
+  const theme=M.plan({duration:32}).notes.filter(n=>n.track==='melody').slice(0,6).map(n=>n.midi);
+  assert.deepEqual(theme,[62,69,67,65,64,62],'开场保留主题的上行五度与级进下行轮廓');
+  for(const preset of ['cinema','warm','pulse'])for(const duration of [8,16,32,47])for(const bpm of [60,88,150]){
+    const s=M.plan({preset,duration,bpm}),close=s.chords.at(-1).at;
+    const pulse=s.notes.filter(n=>n.track==='pulse'&&n.at<close),lead=s.notes.filter(n=>n.track==='melody');
+    assert.equal(pulse[0].at,0);
+    for(let i=1;i<pulse.length;i++)assert.ok(pulse[i].at-pulse[i-1].at<=s.beat*.501,'中段不能撤掉连续伴奏');
+    assert.ok(close-pulse.at(-1).at<=s.beat*.501,'伴奏要衔接到终止和弦');
+    for(let i=1;i<lead.length;i++)assert.ok(lead[i-1].at+lead[i-1].length<=lead[i].at+1e-6,'音符门限不能跨越下一旋律音');
+    for(let i=1;i<s.phrases.length;i++)assert.ok(s.phrases[i-1].end<=s.phrases[i].at+1e-6,'切段不重启重叠乐句');
+    for(const phrase of s.phrases.slice(0,-1))assert.ok(Math.abs(phrase.at/(2*s.bar)-Math.round(phrase.at/(2*s.bar)))<1e-6,'主体乐句在两小节网格上');
+    for(const chord of s.chords.slice(0,-1))for(const offset of [0,2])assert.ok(s.notes.some(n=>n.track==='bass'&&Math.abs(n.at-chord.at-offset*s.beat)<1e-5),'低音应明确第1和第3拍');
+    for(const note of lead){const position=note.at/s.beat*2;assert.ok(Math.abs(position-Math.round(position))<.035,'旋律变化保持八分拍点');}
+  }
+});
 test('实时输出的限幅曲线与离线混音在有效范围内一致',()=>{
   const curve=M.masterCurve();
   for(let x=-3.5;x<=3.5;x+=.037){const position=(x/M.MASTER_RANGE+1)/2*(curve.length-1),i=Math.floor(position),fraction=position-i,live=curve[i]*(1-fraction)+curve[i+1]*fraction;assert.ok(Math.abs(live-Math.tanh(x*1.5)*.92)<1e-5);}

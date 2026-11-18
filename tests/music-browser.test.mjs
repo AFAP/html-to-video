@@ -29,6 +29,8 @@ test('配乐工作台真实生成、播放、分轨控制、方案导入与文�
     await p.eval('musicWorkbench.play()');await new Promise(r=>setTimeout(r,400));
     assert.equal(await p.eval('musicWorkbench.state.playing'),true);assert.ok(await p.eval('Number(document.getElementById("seek").value)>.1'));
     await p.eval('musicWorkbench.pause();musicWorkbench.seek(4)');assert.equal(await p.eval('musicWorkbench.state.position'),4);
+    assert.equal(await p.eval('document.querySelector(".beat-dot.active").textContent'),'2');
+    assert.match(await p.eval('document.getElementById("beat-position").textContent'),/第 2 小节/);
     await p.call('Page.setDownloadBehavior',{behavior:'allow',downloadPath:out});
     for(const [id,name] of [['export-wav','score.wav'],['save-config','score.json'],['save-timeline','score.timeline.js'],['save-midi','score.mid']]){
       await p.eval(id=>document.getElementById(id).click(),id);
